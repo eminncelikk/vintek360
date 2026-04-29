@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Vintek360 — Operasyon Takip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F2F4F8;--surface:#fff;--border:#E2E8F0;--border2:#CBD5E1;
+  --t1:#0F1623;--t2:#475569;--t3:#94A3B8;
+  --accent:#1B4FD8;--accent2:#0E3AB5;--accent-bg:#EEF3FF;
+  --green:#059669;--green-bg:#ECFDF5;--green-lt:#D1FAE5;
+  --amber:#D97706;--amber-bg:#FFFBEB;--amber-lt:#FEF3C7;
+  --red:#DC2626;--red-bg:#FEF2F2;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;
+  --teal:#0891B2;--teal-bg:#ECFEFF;
+  --sb-bg:#0F172A;--sb-border:rgba(255,255,255,.06);
+  --sb-text:rgba(255,255,255,.55);--sb-text-act:#fff;
+  --sb-item-act:rgba(255,255,255,.09);--sb-item-hov:rgba(255,255,255,.05);
+  --sw:232px;--tbh:60px;--r:12px;--rl:16px;
+  --sh:0 1px 3px rgba(15,22,35,.05),0 1px 2px rgba(15,22,35,.03);
+  --sm:0 4px 16px rgba(15,22,35,.08),0 1px 4px rgba(15,22,35,.04);
+  --sl:0 12px 40px rgba(15,22,35,.14),0 4px 12px rgba(15,22,35,.07)
+}
+html,body{height:100%;background:var(--bg);font-family:'Inter',sans-serif;color:var(--t1);-webkit-tap-highlight-color:transparent}
+input,select,textarea,button{font-family:'Inter',sans-serif}
+input:focus,select:focus,textarea:focus{outline:none}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+#root{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--sb-bg);border-right:1px solid var(--sb-border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:60;transition:transform .3s}
+.sb-logo{padding:18px 16px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--sb-border);cursor:pointer}
+.sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.nav-grp{font-size:9.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:rgba(255,255,255,.25);padding:0 8px;margin-bottom:4px;margin-top:18px}
+.nav-grp:first-child{margin-top:0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-size:13px;font-weight:500;color:var(--sb-text);transition:background .12s,color .12s;min-height:40px}
+.nav-item:hover{background:var(--sb-item-hov);color:rgba(255,255,255,.8)}
+.nav-item.active{background:var(--sb-item-act);color:var(--sb-text-act);font-weight:600}
+.nav-ic{width:18px;height:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.55;color:currentColor}
+.nav-item.active .nav-ic{opacity:1}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:#D97706;color:#fff}
+.sb-footer{padding:12px 14px;border-top:1px solid var(--sb-border);font-size:11px;color:var(--sb-text);display:flex;flex-direction:column;gap:0}
+.db-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* MAIN */
+.main-wrap{margin-left:var(--sw);flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:var(--tbh);background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;box-shadow:var(--sh)}
+.tb-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--t1);letter-spacing:-.3px}
+.tb-sub{font-size:11.5px;color:var(--t3);margin-top:1px}
+.page{padding:22px 24px}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:20px;box-shadow:var(--sh)}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:box-shadow .2s,transform .18s}
+.stat-card:hover{box-shadow:var(--sm);transform:translateY(-1px)}
+.sc-lbl{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.sc-val{font-family:'DM Mono',monospace;font-size:21px;font-weight:500;color:var(--t1);letter-spacing:-.5px;line-height:1}
+.sc-sub{font-size:11.5px;color:var(--t3);margin-top:5px}
+.stat-card.accent{background:linear-gradient(135deg,#1B4FD8,#0E3AB5);border-color:transparent}
+.stat-card.accent .sc-lbl,.stat-card.accent .sc-sub{color:rgba(255,255,255,.6)}
+.stat-card.accent .sc-val{color:#fff}
+
+/* GRIDS */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g23{display:grid;grid-template-columns:2fr 1fr;gap:20px;align-items:start}
+
+/* SECTION */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:8px}
+.sec-title{font-family:'Syne',sans-serif;font-size:14.5px;font-weight:800;color:var(--t1)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;transition:background .12s,transform .1s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(27,79,216,.22)}
+.btn-primary:hover{background:var(--accent2)}
+.btn-sec{background:var(--bg);color:var(--t2);border:1px solid var(--border)}
+.btn-sec:hover{background:var(--border)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid #FCA5A5}
+.btn-danger:hover{background:var(--red);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-ic{width:30px;height:30px;padding:0;border-radius:8px;justify-content:center;background:var(--bg);color:var(--t3);border:1px solid var(--border)}
+.btn-ic:hover{color:var(--t1);background:var(--border)}
+.btn-full{width:100%;justify-content:center;padding:12px 18px;font-size:13.5px}
+.btn-xs{padding:4px 9px;font-size:11px;border-radius:7px}
+
+/* FORMS */
+.field{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:9px;color:var(--t1);padding:9px 12px;font-size:13.5px;transition:border-color .2s}
+.field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(27,79,216,.09)}
+.lbl{font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--t3);margin-bottom:5px;display:block}
+.irow{margin-bottom:12px}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;border-radius:var(--rl);border:1px solid var(--border);background:var(--surface)}
+table{width:100%;border-collapse:collapse}
+th{font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t3);padding:11px 15px;text-align:left;background:var(--bg);border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 15px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFBFD}
+
+/* MISC */
+.chip{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.mono{font-family:'DM Mono',monospace}
+.bal-pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:12px;font-weight:600}
+.kv-row{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)}
+.kv-row:last-child{border-bottom:none}
+.kv-key{font-size:10.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--t3);width:130px;flex-shrink:0}
+.kv-val{font-size:13px;color:var(--t1);font-weight:500;word-break:break-word}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(15,22,35,.48);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.mbox{background:var(--surface);border-radius:20px;padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--sl)}
+.mhd{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.mtitle{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--t1)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 17px;border-radius:12px;font-size:12.5px;font-weight:600;z-index:300;white-space:nowrap;box-shadow:var(--sm);pointer-events:none;animation:toastIn .22s ease}
+@keyframes toastIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* SEARCH */
+.srch-wrap{position:relative}
+.srch-wrap input{padding-left:34px}
+.srch-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+
+/* AUTOCOMPLETE */
+.ac-wrap{position:relative}
+.ac-row{display:flex;position:relative}
+.ac-inp{border-radius:9px 0 0 9px!important;flex:1}
+.ac-add{border-radius:0 9px 9px 0!important;border-left:none!important;padding:9px 12px;font-size:12px;font-weight:600;background:var(--accent-bg);color:var(--accent);border:1.5px solid var(--border);cursor:pointer;white-space:nowrap}
+.ac-add:hover{background:var(--accent);color:#fff}
+.ac-drop{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;box-shadow:var(--sm);z-index:200;max-height:190px;overflow-y:auto}
+.ac-item{padding:9px 13px;cursor:pointer;font-size:12.5px;border-bottom:1px solid var(--border)}
+.ac-item:last-child{border-bottom:none}
+.ac-item:hover,.ac-item.sel{background:var(--accent-bg)}
+.ac-name{font-weight:600;color:var(--t1)}
+.ac-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.ac-empty{padding:12px 13px;font-size:12px;color:var(--t3);text-align:center}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:40px 20px;color:var(--t3)}
+.em-ic{font-size:32px;margin-bottom:10px}
+.em-title{font-size:13.5px;font-weight:600;color:var(--t2);margin-bottom:6px}
+.em-sub{font-size:12px;max-width:320px;margin:0 auto;line-height:1.6}
+
+/* MOB */
+.mob-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55}
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--t2)}
+
+/* PERM CHECKBOX */
+.perm-check{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;user-select:none;transition:all .12s}
+.perm-check.on{border-color:var(--accent);background:var(--accent-bg)}
+.perm-box{width:18px;height:18px;border-radius:5px;flex-shrink:0;margin-top:1px;border:2px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.perm-check.on .perm-box{background:var(--accent);border-color:var(--accent)}
+
+/* CARI NET BANNER */
+.net-banner{border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}
+
+/* RESPONSIVE */
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr)}.g23{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0);box-shadow:var(--sl)}
+  .mob-ov.open{display:block}.hamburger{display:flex}.main-wrap{margin-left:0}
+  .topbar{padding:0 14px}.page{padding:14px 12px}
+  .g4,.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}
+  .hide-mob{display:none!important}th.hide-mob,td.hide-mob{display:none}
+  .btn-primary,.btn-sec{min-height:44px;font-size:14px}
+  .nav-item{min-height:44px}
+  .field{min-height:44px;font-size:16px!important}
+  .tbl-wrap table{min-width:480px}
+}
+@media(max-width:480px){.g4,.g3{grid-template-columns:1fr}}
+
+/* LOGIN / LANDING */
+.dark-page{min-height:100vh;background:#060E1F;color:#fff;font-family:'Inter',sans-serif}
+.auth-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px 26px}
+.auth-field{background:rgba(255,255,255,.08)!important;border:1.5px solid rgba(255,255,255,.12)!important;color:#fff!important}
+.auth-field::placeholder{color:rgba(255,255,255,.3)!important}
+.auth-field:focus{border-color:rgba(99,102,241,.6)!important}
+.auth-lbl{font-size:11px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px}
+/* Landing */
+.lp-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);height:66px;background:rgba(6,14,31,.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.06)}
+.lp-hero{position:relative;padding:clamp(60px,10vh,110px) clamp(20px,5vw,60px) clamp(50px,8vh,90px);text-align:center;overflow:hidden}
+.lp-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(37,99,235,.25) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 80% 60%,rgba(124,58,237,.12) 0%,transparent 60%);pointer-events:none}
+.lp-hero::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.lp-h1{font-family:'Syne',sans-serif;font-size:clamp(32px,5.5vw,58px);font-weight:800;line-height:1.08;letter-spacing:-2px;margin-bottom:20px;color:#fff}
+.lp-grad{background:linear-gradient(135deg,#60A5FA,#818CF8 50%,#38BDF8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.lp-feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:1000px;margin:0 auto}
+.lp-feat{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:24px;transition:border-color .2s,transform .2s}
+.lp-feat:hover{border-color:rgba(96,165,250,.25);transform:translateY(-2px)}
+@media(max-width:640px){.lp-nav .lp-ghost{display:none}}
+@keyframes spin360{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.25.6/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script type="text/babel">
+const {useState,useMemo,useEffect,useRef,useCallback}=React;
+
+/* ════════════════════════════════════════
+   SABITLER
+════════════════════════════════════════ */
+const TODAY_STR="2026-04-29"; // Sistem tarihi: 29 Nisan 2026 Çarşamba
+function today(){ return TODAY_STR; }
+function localDate(s){ const[y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); }
+function fmtDate(s){ if(!s)return"—"; const d=localDate(s); return d.getDate()+" "+["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"][d.getMonth()]+" "+d.getFullYear(); }
+function fmtPrice(n){ if(n==null||n===undefined||n==="")return"—"; return Number(n).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₺"; }
+function initials(s){ if(!s)return"?"; const w=s.trim().split(/\s+/); return(w[0][0]+(w[1]?w[1][0]:"")).toUpperCase(); }
+function nid(){ return Date.now()+Math.floor(Math.random()*1000); }
+
+const CRANE_COLORS=["#1B4FD8","#059669","#D97706","#7C3AED","#DC2626","#0891B2"];
+const MONTHS=["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+
+/* İzin tanımları */
+const PERMS=[
+  {k:"operations",  l:"Operasyon",   ic:"🚛", desc:"Satışlar ve araç işlemleri"},
+  {k:"accounting",  l:"Muhasebe",    ic:"💰", desc:"Kasa ve banka hareketleri"},
+  {k:"contacts",    l:"Cariler",     ic:"🏢", desc:"Müşteri ve tedarikçi bakiyeleri"},
+  {k:"reporting",   l:"Raporlama",   ic:"📊", desc:"Günlük ve aylık raporlar"},
+  {k:"fleet",       l:"Filo",        ic:"🔧", desc:"Araç parkı yönetimi"},
+];
+const DEFAULT_PERMS=Object.fromEntries(PERMS.map(p=>[p.k,false]));
+const ADMIN_PERMS  =Object.fromEntries(PERMS.map(p=>[p.k,true]));
+
+/* ════════════════════════════════════════
+   SUPABASE
+════════════════════════════════════════ */
+const SB_URL ="https://druyogpaakdazgepqznv.supabase.co";
+const SB_ANON="sb_publishable_Mj0yvJaooKtnfSIV4yQUWw_WI2nXwnT";
+let sb=null;
+try{
+  sb=window.supabase.createClient(SB_URL,SB_ANON,{
+    auth:{persistSession:true,autoRefreshToken:true,storageKey:"vt360_sess"}
+  });
+}catch(e){console.error("SB init:",e)}
+
+/* Hata mesajları Türkçe */
+function trErr(msg=""){
+  if(msg.includes("Invalid login credentials"))return"E-posta veya şifre hatalı.";
+  if(msg.includes("Email not confirmed"))return"E-posta henüz onaylanmamış.";
+  if(msg.includes("User already registered"))return"Bu e-posta zaten kayıtlı.";
+  if(msg.includes("Password should be"))return"Şifre en az 8 karakter, büyük harf ve rakam içermelidir.";
+  if(msg.includes("rate limit"))return"Çok fazla deneme. Lütfen bekleyin.";
+  return msg||"Bilinmeyen hata.";
+}
+
+/* DB yardımcıları — HER SORGU company_id ile izole */
+async function dbSel(table,cid){
+  if(!sb||!cid){console.warn("[db] company_id eksik, sorgu engellendi:",table);return[];}
+  const{data,error}=await sb.from(table).select("*").eq("company_id",cid);
+  if(error){console.error("[dbSel]",table,error.message);return null;}
+  return data||[];
+}
+async function dbUps(table,rows,cid){
+  if(!sb||!cid){console.warn("[db] company_id eksik, yazma engellendi:",table);return false;}
+  const stamped=rows.map(r=>({...r,company_id:cid}));
+  const{error}=await sb.from(table).upsert(stamped,{onConflict:"id"});
+  if(error){console.error("[dbUps]",table,error.message);return false;}
+  return true;
+}
+async function dbDel(table,id){
+  if(!sb)return;
+  const{error}=await sb.from(table).delete().eq("id",id);
+  if(error)console.error("[dbDel]",table,error.message);
+}
+async function getProfile(uid){
+  if(!sb||!uid)return null;
+  const{data,error}=await sb.from("profiles").select("id,display_name,role,permissions,company_id,company_name").eq("id",uid).maybeSingle();
+  if(error){console.error("[getProfile]",error.message);return null;}
+  return data;
+}
+async function upsProfile(obj){
+  if(!sb)return;
+  const{error}=await sb.from("profiles").upsert(obj,{onConflict:"id"});
+  if(error)console.error("[upsProfile]",error.message);
+}
+
+/* ════════════════════════════════════════
+   LOGO BİLEŞENİ
+════════════════════════════════════════ */
+function VtLogo({size=36,textSize=14}){
+  const r=Math.round(size*.26);
+  return(
+    <div style={{display:"flex",alignItems:"center",gap:10,flexShrink:0}}>
+      <div style={{width:size,height:size,borderRadius:r,background:"linear-gradient(145deg,#2563EB,#1B4FD8)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 4px 16px rgba(37,99,235,.45)",flexShrink:0}}>
+        <svg width={size*.52} height={size*.52} viewBox="0 0 24 24" fill="none">
+          <rect x="10.5" y="2" width="3" height="13" rx="1.5" fill="rgba(255,255,255,.95)"/>
+          <rect x="4" y="2" width="16" height="2.5" rx="1.25" fill="rgba(255,255,255,.95)"/>
+          <line x1="12" y1="15" x2="12" y2="18" stroke="rgba(255,255,255,.9)" strokeWidth="1.5" strokeLinecap="round"/>
+          <path d="M10 18 Q8.5 18 8.5 20 Q8.5 22 10.5 22 Q12 22 12 20.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+          <rect x="4" y="3" width="5" height="3.5" rx="1" fill="rgba(255,255,255,.55)"/>
+          <circle cx="19" cy="3.2" r="2" fill="rgba(255,255,255,.35)" stroke="rgba(255,255,255,.75)" strokeWidth="1"/>
+        </svg>
+      </div>
+      <div style={{lineHeight:1.18,minWidth:0}}>
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:textSize,fontWeight:800,color:"#fff",letterSpacing:"-.3px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Vintek360</div>
+        <div style={{fontSize:Math.max(8,textSize*.62),fontWeight:600,color:"rgba(255,255,255,.35)",letterSpacing:"1px",textTransform:"uppercase",marginTop:1}}>Operasyon Takip</div>
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   LANDING PAGE
+════════════════════════════════════════ */
+function LandingPage({onLogin,onSignup}){
+  const feats=[
+    {ic:"🚛",bg:"rgba(27,79,216,.15)",c:"#60A5FA",t:"Operasyon Takibi",d:"Vinç iş emirlerini, lokasyonları ve araç atamalarını tek ekrandan yönetin."},
+    {ic:"💰",bg:"rgba(5,150,105,.15)",c:"#6EE7B7",t:"Kasa & Muhasebe",d:"Nakit, banka ve döviz hesaplarınızı anlık takip edin."},
+    {ic:"🏢",bg:"rgba(124,58,237,.15)",c:"#C4B5FD",t:"Cari Hesap",d:"Müşteri ve tedarikçi bakiyelerini mahsuplaşmalı olarak görün."},
+    {ic:"👥",bg:"rgba(8,145,178,.15)",c:"#67E8F9",t:"Personel Yetkilendirme",d:"Her çalışana sadece ihtiyacı olan modülleri açın."},
+    {ic:"📊",bg:"rgba(217,119,6,.15)",c:"#FCD34D",t:"Raporlama",d:"Günlük ve aylık ciro analizlerine saniyeler içinde ulaşın."},
+    {ic:"🔒",bg:"rgba(220,38,38,.15)",c:"#FCA5A5",t:"Firma İzolasyonu",d:"Her firma kendi verilerini görür. Tam SaaS güvenliği."},
+  ];
+  return(
+    <div className="dark-page">
+      <nav className="lp-nav">
+        <VtLogo size={36} textSize={14}/>
+        <div style={{display:"flex",gap:9}}>
+          <button className="lp-ghost" onClick={onLogin} style={{background:"none",border:"1.5px solid rgba(255,255,255,.14)",color:"rgba(255,255,255,.75)",padding:"8px 18px",borderRadius:10,fontSize:13,fontWeight:600,cursor:"pointer"}}>Giriş Yap</button>
+          <button onClick={onSignup} style={{background:"linear-gradient(135deg,#2563EB,#1B4FD8)",color:"#fff",border:"none",padding:"9px 20px",borderRadius:10,fontSize:13,fontWeight:700,cursor:"pointer",boxShadow:"0 4px 18px rgba(37,99,235,.4)"}}>Ücretsiz Başla</button>
+        </div>
+      </nav>
+
+      <div className="lp-hero">
+        <div style={{position:"relative",zIndex:1,maxWidth:740,margin:"0 auto"}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:7,background:"rgba(37,99,235,.15)",border:"1px solid rgba(37,99,235,.35)",color:"#93C5FD",fontSize:12,fontWeight:600,padding:"5px 14px",borderRadius:20,marginBottom:26}}>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Vinç ve Ağır Ekipman Firmaları İçin
+          </div>
+          <h1 className="lp-h1">Operasyonunuzu<br/><span className="lp-grad">Dijitale Taşıyın</span></h1>
+          <p style={{fontSize:"clamp(15px,2vw,17px)",color:"rgba(255,255,255,.5)",lineHeight:1.75,maxWidth:520,margin:"0 auto 34px"}}>
+            Satış takibi, cari hesap, kasa yönetimi — her şey tek platform. Kurulum yok, sunucu yok.
+          </p>
+          <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginBottom:28}}>
+            <button onClick={onSignup} style={{display:"inline-flex",alignItems:"center",gap:8,background:"linear-gradient(135deg,#2563EB,#1B4FD8)",color:"#fff",border:"none",padding:"14px 28px",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",boxShadow:"0 6px 26px rgba(37,99,235,.45)"}}>
+              Ücretsiz Hesap Aç
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+            <button onClick={onLogin} style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,.07)",border:"1.5px solid rgba(255,255,255,.14)",color:"rgba(255,255,255,.85)",padding:"14px 28px",borderRadius:12,fontSize:15,fontWeight:600,cursor:"pointer"}}>
+              Giriş Yap
+            </button>
+          </div>
+          <div style={{display:"flex",gap:18,justifyContent:"center",flexWrap:"wrap",fontSize:12,color:"rgba(255,255,255,.22)"}}>
+            {["Kredi kartı gerekmez","2 dakikada kurulum","Verileriniz güvende"].map(t=>(
+              <span key={t}><span style={{color:"rgba(99,179,237,.5)"}}>✓ </span>{t}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{padding:"clamp(50px,7vw,90px) clamp(20px,5vw,60px)"}}>
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:"1.5px",textTransform:"uppercase",color:"#60A5FA",textAlign:"center",marginBottom:14}}>Özellikler</div>
+        <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:"clamp(24px,3.5vw,36px)",fontWeight:800,letterSpacing:"-1px",textAlign:"center",color:"#fff",marginBottom:40,lineHeight:1.15}}>İhtiyacınız olan her şey bir arada</h2>
+        <div className="lp-feat-grid">
+          {feats.map(f=>(
+            <div key={f.t} className="lp-feat">
+              <div style={{width:44,height:44,borderRadius:12,background:f.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,marginBottom:14}}>{f.ic}</div>
+              <div style={{fontSize:14,fontWeight:700,color:"#fff",marginBottom:7}}>{f.t}</div>
+              <div style={{fontSize:13,color:"rgba(255,255,255,.42)",lineHeight:1.6}}>{f.d}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{margin:"0 clamp(20px,5vw,60px) clamp(50px,7vw,80px)",padding:"clamp(36px,5vw,56px)",borderRadius:20,textAlign:"center",background:"linear-gradient(135deg,#0F2A6B,#1B3FA8,#0F1F5C)",border:"1px solid rgba(96,165,250,.2)"}}>
+        <div style={{marginBottom:14,display:"flex",justifyContent:"center"}}><VtLogo size={40} textSize={16}/></div>
+        <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:"clamp(20px,3vw,30px)",fontWeight:800,color:"#fff",marginBottom:12,letterSpacing:"-1px"}}>Bugün başlayın, farkı görün</h2>
+        <button onClick={onSignup} style={{display:"inline-flex",alignItems:"center",gap:8,background:"linear-gradient(135deg,#2563EB,#1B4FD8)",color:"#fff",border:"none",padding:"14px 30px",borderRadius:12,fontSize:15,fontWeight:700,cursor:"pointer",boxShadow:"0 6px 26px rgba(37,99,235,.4)"}}>
+          Ücretsiz Hesap Aç
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+
+      <footer style={{textAlign:"center",padding:"22px 24px",borderTop:"1px solid rgba(255,255,255,.06)",fontSize:12,color:"rgba(255,255,255,.2)"}}>
+        <div style={{marginBottom:8,display:"flex",justifyContent:"center"}}><VtLogo size={24} textSize={11}/></div>
+        Vintek360 © {new Date().getFullYear()} — Tüm hakları saklıdır
+      </footer>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   KAYIT EKRANI
+════════════════════════════════════════ */
+function SignupScreen({onDone,onBack,onLogin}){
+  const[step,setStep]=useState(1);
+  const[email,setEmail]=useState("");
+  const[pass,setPass]=useState("");
+  const[pass2,setPass2]=useState("");
+  const[company,setCompany]=useState("");
+  const[loading,setLoading]=useState(false);
+  const[err,setErr]=useState("");
+
+  const passOk=useMemo(()=>({
+    len:pass.length>=8,
+    upper:/[A-Z]/.test(pass),
+    num:/[0-9]/.test(pass),
+  }),[pass]);
+
+  const step1=async()=>{
+    if(!email.trim()||!pass){setErr("E-posta ve şifre zorunludur.");return}
+    if(!passOk.len){setErr("Şifre en az 8 karakter olmalıdır.");return}
+    if(!passOk.upper){setErr("Şifre en az bir büyük harf içermelidir.");return}
+    if(!passOk.num){setErr("Şifre en az bir rakam içermelidir.");return}
+    if(pass!==pass2){setErr("Şifreler eşleşmiyor.");return}
+    setErr("");setStep(2);
+  };
+
+  const step2=async()=>{
+    if(!company.trim()){setErr("Firma adı zorunludur.");return}
+    setLoading(true);setErr("");
+    const{data,error}=await sb.auth.signUp({
+      email:email.trim(),
+      password:pass,
+      options:{emailRedirectTo:window.location.origin,data:{company_name:company.trim()}}
+    });
+    if(error){console.error("[signup]",error);setLoading(false);setErr(trErr(error.message));return}
+    const user=data?.user;
+    if(user){
+      /* Fail-safe: profil oluştur */
+      try{
+        await upsProfile({
+          id:user.id, display_name:company.trim(),
+          role:"admin", permissions:ADMIN_PERMS, company_name:company.trim()
+        });
+      }catch(e){console.warn("[signup profil]",e)}
+    }
+    const needsConfirm=!data?.user?.confirmed_at;
+    setLoading(false);
+    if(needsConfirm){setStep(3);return;}
+    onDone(user);
+  };
+
+  const StepDots=()=>(
+    <div style={{display:"flex",gap:6,justifyContent:"center",marginTop:14}}>
+      {[1,2,3].map(s=><div key={s} style={{height:4,width:s===step?22:10,borderRadius:4,background:s<=step?"#3B82F6":"rgba(255,255,255,.15)",transition:"all .2s"}}/>)}
+    </div>
+  );
+
+  return(
+    <div className="dark-page" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{width:"100%",maxWidth:390}}>
+        <div style={{textAlign:"center",marginBottom:26}}>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><VtLogo size={40} textSize={16}/></div>
+          <div style={{fontFamily:"'Syne',sans-serif",fontSize:19,fontWeight:800,color:"#fff",marginBottom:4}}>
+            {step===1?"Hesap Oluştur":step===2?"Firma Bilgisi":"E-posta Onayı"}
+          </div>
+          <div style={{fontSize:12,color:"rgba(255,255,255,.35)"}}>
+            {step===1?"Ücretsiz başlayın":step===2?"Son adım":"Neredeyse tamamlandı"}
+          </div>
+          <StepDots/>
+        </div>
+        <div className="auth-card">
+          {err&&<div style={{background:"rgba(220,38,38,.15)",border:"1px solid rgba(220,38,38,.3)",borderRadius:9,padding:"10px 13px",fontSize:12.5,color:"#FCA5A5",marginBottom:14,lineHeight:1.5}}>{err}</div>}
+          {step===1&&<>
+            <div className="irow"><label className="auth-lbl">E-posta</label><input className="field auth-field" type="email" placeholder="ornek@firma.com" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&step1()}/></div>
+            <div className="irow">
+              <label className="auth-lbl">Şifre</label>
+              <input className="field auth-field" type="password" placeholder="Min. 8 karakter" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&step1()}/>
+              <div style={{display:"flex",gap:10,marginTop:6,flexWrap:"wrap"}}>
+                {[["len","8+ karakter"],["upper","Büyük harf"],["num","Rakam"]].map(([k,l])=>(
+                  <span key={k} style={{fontSize:10.5,display:"flex",alignItems:"center",gap:4,color:passOk[k]?"#6EE7B7":"rgba(255,255,255,.25)"}}>
+                    <svg width="9" height="9" viewBox="0 0 12 12" fill="none">{passOk[k]?<polyline points="1.5,6 4.5,9 10.5,3" stroke="#6EE7B7" strokeWidth="2.2" strokeLinecap="round"/>:<circle cx="6" cy="6" r="4.5" stroke="rgba(255,255,255,.25)" strokeWidth="1.5"/>}</svg>{l}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="irow" style={{marginBottom:20}}><label className="auth-lbl">Şifre Tekrar</label><input className="field auth-field" type="password" placeholder="Tekrar girin" value={pass2} onChange={e=>setPass2(e.target.value)} onKeyDown={e=>e.key==="Enter"&&step1()}/></div>
+            <button className="btn btn-primary btn-full" onClick={step1}>Devam Et →</button>
+            <button onClick={onBack} style={{width:"100%",marginTop:10,background:"none",border:"none",fontSize:12,color:"rgba(255,255,255,.3)",cursor:"pointer",padding:8}}>← Ana sayfaya dön</button>
+          </>}
+          {step===2&&<>
+            <div className="irow" style={{marginBottom:20}}>
+              <label className="auth-lbl">Firma / Şirket Adı</label>
+              <input className="field auth-field" placeholder="Örn: Kardeşler Vinç Ltd." value={company} onChange={e=>setCompany(e.target.value)} onKeyDown={e=>e.key==="Enter"&&step2()} autoFocus/>
+              <div style={{fontSize:11,color:"rgba(255,255,255,.3)",marginTop:6,lineHeight:1.5}}>Bu isim uygulamada görünür ve verilerinizi ayırt eder.</div>
+            </div>
+            <button className="btn btn-primary btn-full" onClick={step2} disabled={loading} style={{opacity:loading?.65:1}}>
+              {loading?"Kaydediliyor…":"🚀 Uygulamaya Başla"}
+            </button>
+          </>}
+          {step===3&&<div style={{textAlign:"center",padding:"8px 0"}}>
+            <div style={{fontSize:36,marginBottom:14}}>📧</div>
+            <div style={{fontSize:15,fontWeight:700,color:"#fff",marginBottom:10}}>E-postanızı Onaylayın</div>
+            <div style={{fontSize:13,color:"rgba(255,255,255,.5)",lineHeight:1.7,marginBottom:18}}>
+              <b style={{color:"#93C5FD"}}>{email}</b> adresine onay bağlantısı gönderildi.
+            </div>
+            <button className="btn btn-primary btn-full" onClick={onLogin}>Onayladım, Giriş Yap →</button>
+          </div>}
+        </div>
+        {step<3&&<div style={{textAlign:"center",marginTop:14}}>
+          <button onClick={onLogin} style={{background:"none",border:"none",fontSize:12.5,color:"#60A5FA",cursor:"pointer",padding:6}}>Zaten hesabım var →</button>
+        </div>}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   GİRİŞ EKRANI
+════════════════════════════════════════ */
+function LoginScreen({onLogin,onBack,onSignup}){
+  const[email,setEmail]=useState("");
+  const[pass,setPass]=useState("");
+  const[loading,setLoading]=useState(false);
+  const[err,setErr]=useState("");
+  const[reset,setReset]=useState(false);
+  const[resetDone,setResetDone]=useState(false);
+
+  const doLogin=async()=>{
+    if(!email.trim()||!pass){setErr("E-posta ve şifre zorunludur.");return}
+    setLoading(true);setErr("");
+    const{data,error}=await sb.auth.signInWithPassword({email:email.trim(),password:pass});
+    setLoading(false);
+    if(error){setErr(trErr(error.message));return}
+    onLogin(data.user);
+  };
+
+  const doReset=async()=>{
+    if(!email.trim()){setErr("E-posta adresinizi girin.");return}
+    setLoading(true);setErr("");
+    const{error}=await sb.auth.resetPasswordForEmail(email.trim(),{redirectTo:window.location.origin});
+    setLoading(false);
+    if(error){setErr(trErr(error.message));return}
+    setResetDone(true);
+  };
+
+  return(
+    <div className="dark-page" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{width:"100%",maxWidth:390}}>
+        <div style={{textAlign:"center",marginBottom:26}}>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:14}}><VtLogo size={40} textSize={16}/></div>
+          <div style={{fontFamily:"'Syne',sans-serif",fontSize:19,fontWeight:800,color:"#fff",marginBottom:4}}>{reset?"Şifre Sıfırla":"Giriş Yap"}</div>
+        </div>
+        <div className="auth-card">
+          {err&&<div style={{background:"rgba(220,38,38,.15)",border:"1px solid rgba(220,38,38,.3)",borderRadius:9,padding:"10px 13px",fontSize:12.5,color:"#FCA5A5",marginBottom:14}}>{err}</div>}
+          {!reset&&<>
+            <div className="irow"><label className="auth-lbl">E-posta</label><input className="field auth-field" type="email" placeholder="ornek@firma.com" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doLogin()}/></div>
+            <div className="irow" style={{marginBottom:22}}><label className="auth-lbl">Şifre</label><input className="field auth-field" type="password" placeholder="••••••••" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&doLogin()}/></div>
+            <button className="btn btn-primary btn-full" onClick={doLogin} disabled={loading} style={{opacity:loading?.65:1}}>
+              {loading?"Giriş yapılıyor…":"Giriş Yap"}
+            </button>
+            <button onClick={()=>{setReset(true);setErr("");}} style={{width:"100%",marginTop:10,background:"none",border:"none",fontSize:12,color:"rgba(255,255,255,.3)",cursor:"pointer",padding:8}}>Şifremi unuttum</button>
+          </>}
+          {reset&&!resetDone&&<>
+            <div className="irow" style={{marginBottom:20}}><label className="auth-lbl">E-posta</label><input className="field auth-field" type="email" placeholder="ornek@firma.com" value={email} onChange={e=>setEmail(e.target.value)}/></div>
+            <button className="btn btn-primary btn-full" onClick={doReset} disabled={loading} style={{opacity:loading?.65:1}}>{loading?"Gönderiliyor…":"Sıfırlama Bağlantısı Gönder"}</button>
+            <button onClick={()=>{setReset(false);setErr("");}} style={{width:"100%",marginTop:10,background:"none",border:"none",fontSize:12,color:"rgba(255,255,255,.3)",cursor:"pointer",padding:8}}>← Geri dön</button>
+          </>}
+          {reset&&resetDone&&<div style={{background:"rgba(5,150,105,.15)",border:"1px solid rgba(5,150,105,.3)",borderRadius:9,padding:"14px",fontSize:13,color:"#6EE7B7",lineHeight:1.7}}>
+            ✓ Sıfırlama bağlantısı <b>{email}</b> adresine gönderildi.
+          </div>}
+        </div>
+        <div style={{textAlign:"center",marginTop:14}}>
+          <button onClick={onSignup} style={{background:"none",border:"none",fontSize:12.5,color:"#60A5FA",cursor:"pointer",padding:6}}>Hesabınız yok mu? Ücretsiz kayıt olun →</button>
+        </div>
+        {onBack&&<div style={{textAlign:"center",marginTop:6}}>
+          <button onClick={onBack} style={{background:"none",border:"none",fontSize:11.5,color:"rgba(255,255,255,.25)",cursor:"pointer",padding:4}}>← Ana sayfaya dön</button>
+        </div>}
+      </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   SAYFA BİLEŞENLERİ
+════════════════════════════════════════ */
+
+/* SATIŞLAR */
+function JobsPage({jobs,contacts,cranes,ledger,cid,mask,fmtP,showT,setJobs,setLedger,navTo}){
+  const[search,setSearch]=useState("");
+  const[showMod,setShowMod]=useState(false);
+  const[editId,setEditId]=useState(null);
+  const[form,setForm]=useState({date:today(),contact_id:null,crane_code:"",location:"",work:"",price:"",supplier_contact_id:null,supplier_price:"",receipt_no:""});
+
+  const filtered=jobs.filter(j=>{
+    if(!search)return true;
+    const q=search.toLowerCase();
+    const ct=contacts.find(c=>c.id===j.contact_id);
+    return(ct?.title||"").toLowerCase().includes(q)||(j.location||"").toLowerCase().includes(q)||(j.crane_code||"").toLowerCase().includes(q);
+  });
+  const openAdd=()=>{setEditId(null);setForm({date:today(),contact_id:null,crane_code:"",location:"",work:"",price:"",supplier_contact_id:null,supplier_price:"",receipt_no:""});setShowMod(true);};
+  const openEdit=j=>{setEditId(j.id);setForm({date:j.date,contact_id:j.contact_id,crane_code:j.crane_code||"",location:j.location||"",work:j.work||"",price:j.price!=null?String(j.price):"",supplier_contact_id:j.supplier_contact_id||null,supplier_price:j.supplier_price!=null?String(j.supplier_price):"",receipt_no:j.receipt_no||""});setShowMod(true);};
+  const save=async()=>{
+    if(!form.contact_id){showT("⚠ Müşteri seçin");return}
+    const row={id:editId||nid(),date:form.date,contact_id:form.contact_id,crane_code:form.crane_code,location:form.location,work:form.work,price:form.price?Number(form.price):null,supplier_contact_id:form.supplier_contact_id||null,supplier_price:form.supplier_price?Number(form.supplier_price):null,receipt_no:form.receipt_no};
+    const lRows=[];
+    if(!editId){
+      if(row.price)lRows.push({id:nid(),date:row.date,entity_id:row.contact_id,entity_type:"customer",type:"debt",amount:row.price,description:"Satış",job_id:row.id});
+      if(row.supplier_contact_id&&row.supplier_price)lRows.push({id:nid(),date:row.date,entity_id:row.supplier_contact_id,entity_type:"supplier",type:"debt",amount:row.supplier_price,description:"Tedarikçi hizmet",job_id:row.id});
+    }
+    await dbUps("jobs",[row],cid);
+    if(lRows.length)await dbUps("ledger",lRows,cid);
+    if(editId)setJobs(prev=>prev.map(j=>j.id===editId?{...j,...row}:j));
+    else{setJobs(prev=>[row,...prev]);setLedger(prev=>[...prev,...lRows]);}
+    setShowMod(false);showT(editId?"✓ Güncellendi":"✓ İş kaydedildi");
+  };
+  const del=async j=>{
+    if(!window.confirm("Bu iş kaydını silmek istediğinize emin misiniz?"))return;
+    await dbDel("jobs",j.id);setJobs(prev=>prev.filter(x=>x.id!==j.id));showT("🗑 Silindi");
+  };
+  return(
+    <div className="page">
+      <div className="sec-hd">
+        <div className="srch-wrap" style={{flex:1,maxWidth:340}}>
+          <span className="srch-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input className="field" placeholder="Müşteri, konum, araç..." value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+        <button className="btn btn-primary" onClick={openAdd}>+ Yeni İş</button>
+      </div>
+      {filtered.length===0?<div className="card"><div className="empty">
+        <div className="em-ic">📄</div>
+        <div className="em-title">{search?"Sonuç bulunamadı":"Henüz iş kaydı yok"}</div>
+        <div className="em-sub">{search?"Arama teriminizi değiştirin.":"Gerçekleştirdiğiniz vinç işlerini '+ Yeni İş' butonuyla kaydedin."}</div>
+        {!search&&<button className="btn btn-primary" style={{marginTop:14}} onClick={openAdd}>+ İlk İşi Ekle</button>}
+      </div></div>
+      :<div className="tbl-wrap"><table>
+        <thead><tr><th>Tarih</th><th>Müşteri</th><th className="hide-mob">Araç</th><th>Tutar</th><th className="hide-mob">Tedarikçi</th><th></th></tr></thead>
+        <tbody>{filtered.map(j=>{
+          const ct=contacts.find(c=>c.id===j.contact_id);
+          const st=contacts.find(c=>c.id===j.supplier_contact_id);
+          const kar=j.price!=null&&j.supplier_price!=null?j.price-j.supplier_price:null;
+          return(<tr key={j.id}>
+            <td style={{color:"var(--t3)",fontSize:12,whiteSpace:"nowrap"}}>{fmtDate(j.date)}</td>
+            <td><div style={{fontWeight:600,fontSize:13}}>{ct?.title||"—"}</div>{j.location&&<div style={{fontSize:11,color:"var(--t3)",marginTop:1}}>📍{j.location}</div>}</td>
+            <td className="hide-mob" style={{fontSize:12.5}}>{j.crane_code||"—"}</td>
+            <td><span className="mono" style={{fontWeight:700,color:"var(--green)",fontSize:13}}>{mask(fmtP(j.price))}</span>{kar!=null&&<div style={{fontSize:10.5,color:kar>=0?"var(--green)":"var(--red)",marginTop:1}}>kâr: {mask(fmtP(kar))}</div>}</td>
+            <td className="hide-mob">{st?<span className="chip" style={{background:"var(--purple-bg)",color:"var(--purple)",fontSize:10.5}}>{st.title}</span>:<span style={{color:"var(--t3)"}}>—</span>}</td>
+            <td><div style={{display:"flex",gap:4}}><button className="btn btn-ic" style={{fontSize:10}} onClick={()=>openEdit(j)}>✏</button><button className="btn btn-ic" style={{fontSize:10,color:"var(--red)"}} onClick={()=>del(j)}>✕</button></div></td>
+          </tr>);
+        })}</tbody>
+      </table></div>}
+      {showMod&&<div className="ov" onClick={e=>e.target===e.currentTarget&&setShowMod(false)}>
+        <div className="mbox" style={{maxWidth:520}}>
+          <div className="mhd"><div className="mtitle">{editId?"İş Düzenle":"Yeni İş"}</div><button className="btn btn-ic" onClick={()=>setShowMod(false)}>✕</button></div>
+          <div className="g2" style={{marginBottom:12}}>
+            <div className="irow"><span className="lbl">Tarih</span><input type="date" className="field" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))}/></div>
+            <div className="irow"><span className="lbl">Araç Kodu</span><input className="field" placeholder="VNT-01" value={form.crane_code} onChange={e=>setForm(f=>({...f,crane_code:e.target.value}))}/></div>
+          </div>
+          <div className="irow"><span className="lbl">Müşteri *</span><ContactAC value={form.contact_id} onChange={v=>setForm(f=>({...f,contact_id:v}))} contacts={contacts} label="Müşteri"/></div>
+          <div className="irow"><span className="lbl">Konum</span><input className="field" placeholder="İstanbul, Tuzla" value={form.location} onChange={e=>setForm(f=>({...f,location:e.target.value}))}/></div>
+          <div className="irow"><span className="lbl">İş Tanımı</span><input className="field" placeholder="Kiriş montajı" value={form.work} onChange={e=>setForm(f=>({...f,work:e.target.value}))}/></div>
+          <div className="g2" style={{marginBottom:12}}>
+            <div className="irow"><span className="lbl">Müşteri Fiyatı (₺)</span><input className="field mono" placeholder="0.00" value={form.price} onChange={e=>setForm(f=>({...f,price:e.target.value}))}/></div>
+            <div className="irow"><span className="lbl">Tutanak No</span><input className="field" value={form.receipt_no} onChange={e=>setForm(f=>({...f,receipt_no:e.target.value}))}/></div>
+          </div>
+          <div style={{background:"var(--purple-bg)",borderRadius:9,padding:"12px 14px",marginBottom:12}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--purple)",letterSpacing:.5,textTransform:"uppercase",marginBottom:10}}>Tedarikçi (opsiyonel)</div>
+            <div className="irow"><span className="lbl">Tedarikçi Firma</span><ContactAC value={form.supplier_contact_id} onChange={v=>setForm(f=>({...f,supplier_contact_id:v}))} contacts={contacts.filter(c=>c.is_supplier)} label="Tedarikçi"/></div>
+            <div className="irow" style={{marginBottom:0}}><span className="lbl">Tedarikçi Ücreti (₺)</span><input className="field mono" placeholder="0.00" value={form.supplier_price} onChange={e=>setForm(f=>({...f,supplier_price:e.target.value}))}/></div>
+          </div>
+          <button className="btn btn-primary btn-full" onClick={save}>{editId?"Güncelle":"Kaydet"}</button>
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+/* CARİLER */
+function ContactsPage({contacts,jobs,ledger,cid,mask,fmtP,showT,setContacts,setLedger,navTo}){
+  const[search,setSearch]=useState("");
+  const[showMod,setShowMod]=useState(false);
+  const[editId,setEditId]=useState(null);
+  const[detail,setDetail]=useState(null);
+  const[form,setForm]=useState({title:"",code:"",phone:"",contact_person:"",tax_no:"",tax_office:"",is_customer:true,is_supplier:false});
+
+  const entityBal=(id,type)=>ledger.filter(l=>l.entity_id===id&&l.entity_type===type).reduce((a,l)=>l.type==="debt"?a+l.amount:a-l.amount,0);
+
+  const filtered=contacts.filter(c=>{
+    if(!search)return true;
+    const q=search.toLowerCase();
+    return c.title.toLowerCase().includes(q)||(c.phone||"").includes(q);
+  });
+  const openAdd=()=>{setEditId(null);setForm({title:"",code:"",phone:"",contact_person:"",tax_no:"",tax_office:"",is_customer:true,is_supplier:false});setShowMod(true);};
+  const openEdit=c=>{setEditId(c.id);setForm({title:c.title,code:c.code||"",phone:c.phone||"",contact_person:c.contact_person||"",tax_no:c.tax_no||"",tax_office:c.tax_office||"",is_customer:!!c.is_customer,is_supplier:!!c.is_supplier});setShowMod(true);};
+  const save=async()=>{
+    if(!form.title.trim()){showT("⚠ Firma adı zorunlu");return}
+    const row={id:editId||nid(),...form};
+    await dbUps("contacts",[row],cid);
+    if(editId)setContacts(prev=>prev.map(c=>c.id===editId?{...c,...row}:c));
+    else setContacts(prev=>[row,...prev]);
+    setShowMod(false);showT(editId?"✓ Güncellendi":"✓ Kaydedildi");
+  };
+  const del=async c=>{
+    if(!window.confirm(`${c.title} silinsin mi?`))return;
+    await dbDel("contacts",c.id);setContacts(prev=>prev.filter(x=>x.id!==c.id));showT("🗑 Silindi");
+  };
+
+  if(detail){
+    const c=contacts.find(x=>x.id===detail);
+    if(!c){setDetail(null);return null;}
+    const custBal=entityBal(c.id,"customer");
+    const supBal=entityBal(c.id,"supplier");
+    const net=custBal-supBal;
+    const cJobs=jobs.filter(j=>j.contact_id===c.id||j.supplier_contact_id===c.id);
+    return(
+      <div className="page">
+        <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
+          <button className="btn btn-sec btn-xs" onClick={()=>setDetail(null)}>← Geri</button>
+          <div style={{fontFamily:"'Syne',sans-serif",fontSize:16,fontWeight:800}}>{c.title}</div>
+          <div style={{display:"flex",gap:5}}>
+            {c.is_customer&&<span className="chip" style={{background:"var(--accent-bg)",color:"var(--accent)"}}>Müşteri</span>}
+            {c.is_supplier&&<span className="chip" style={{background:"var(--purple-bg)",color:"var(--purple)"}}>Tedarikçi</span>}
+          </div>
+        </div>
+        <div className="g23" style={{gap:16}}>
+          <div>
+            <div style={{borderRadius:12,padding:"14px 18px",marginBottom:16,background:net>0?"var(--amber-bg)":net<0?"var(--red-bg)":"var(--green-bg)",border:`1px solid ${net>0?"var(--amber-lt)":net<0?"#FCA5A5":"var(--green-lt)"}`}}>
+              <div style={{fontSize:11,fontWeight:700,color:"var(--t3)",letterSpacing:.5,textTransform:"uppercase",marginBottom:4}}>Net Bakiye</div>
+              <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,fontWeight:700,color:net>0?"var(--amber)":net<0?"var(--red)":"var(--green)"}}>
+                {mask(fmtP(Math.abs(net)))}
+              </div>
+              <div style={{fontSize:12,color:"var(--t2)",marginTop:4}}>
+                {net===0?"Hesap kapalı":net>0?"Bize borçlu (alacağımız var)":"Biz borçluyuz (onlara borcumuz var)"}
+              </div>
+              {(c.is_customer&&c.is_supplier)&&<div style={{marginTop:8,display:"flex",gap:16,fontSize:12,color:"var(--t2)"}}>
+                <div>Müşteri cari: <b>{mask(fmtP(custBal))}</b></div>
+                <div>Tedarikçi cari: <b>{mask(fmtP(supBal))}</b></div>
+              </div>}
+            </div>
+            <div className="sec-title" style={{marginBottom:10}}>İşler ({cJobs.length})</div>
+            {cJobs.length===0?<div className="card"><div className="empty" style={{padding:20}}><div className="em-sub">Bu firma ile henüz iş kaydı yok</div></div></div>
+            :<div className="tbl-wrap"><table>
+              <thead><tr><th>Tarih</th><th>Konum</th><th>Tutar</th><th>Rol</th></tr></thead>
+              <tbody>{cJobs.map(j=>(
+                <tr key={j.id}>
+                  <td style={{color:"var(--t3)",fontSize:12}}>{fmtDate(j.date)}</td>
+                  <td>{j.location||"—"}</td>
+                  <td><span className="mono" style={{fontWeight:600,color:"var(--green)"}}>{mask(fmtP(j.price))}</span></td>
+                  <td>{j.contact_id===c.id?<span className="chip" style={{background:"var(--accent-bg)",color:"var(--accent)"}}>Müşteri</span>:<span className="chip" style={{background:"var(--purple-bg)",color:"var(--purple)"}}>Tedarikçi</span>}</td>
+                </tr>
+              ))}</tbody>
+            </table></div>}
+          </div>
+          <div>
+            <div className="card">
+              <div style={{fontWeight:700,fontSize:13,marginBottom:12}}>Firma Bilgileri</div>
+              <div className="kv-row"><div className="kv-key">Yetkili</div><div className="kv-val">{c.contact_person||"—"}</div></div>
+              <div className="kv-row"><div className="kv-key">Telefon</div><div className="kv-val">{c.phone?<a href={`tel:${c.phone}`} style={{color:"var(--accent)"}}>{c.phone}</a>:"—"}</div></div>
+              <div className="kv-row"><div className="kv-key">VKN</div><div className="kv-val mono">{c.tax_no||"—"}</div></div>
+              <div className="kv-row"><div className="kv-key">Vergi Dairesi</div><div className="kv-val">{c.tax_office||"—"}</div></div>
+            </div>
+            <div style={{display:"flex",gap:9,marginTop:10}}>
+              <button className="btn btn-sec" style={{flex:1}} onClick={()=>{openEdit(c);setDetail(null);}}>✏ Düzenle</button>
+              <button className="btn btn-danger btn-xs" onClick={()=>{del(c);setDetail(null);}}>Sil</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="page">
+      <div className="sec-hd">
+        <div className="srch-wrap" style={{flex:1,maxWidth:340}}>
+          <span className="srch-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input className="field" placeholder="Firma adı, telefon..." value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+        <button className="btn btn-primary" onClick={openAdd}>+ Firma Ekle</button>
+      </div>
+      {filtered.length===0?<div className="card"><div className="empty">
+        <div className="em-ic">🏢</div>
+        <div className="em-title">{search?"Firma bulunamadı":"Henüz firma eklenmemiş"}</div>
+        <div className="em-sub">{search?"Arama teriminizi değiştirin.":"Müşteri veya tedarikçi firmalarınızı ekleyin. Bir firma her iki rol için işaretlenebilir."}</div>
+        {!search&&<button className="btn btn-primary" style={{marginTop:14}} onClick={openAdd}>+ İlk Firmayı Ekle</button>}
+      </div></div>
+      :<div className="tbl-wrap"><table>
+        <thead><tr><th>Firma</th><th className="hide-mob">Rol</th><th>Net Bakiye</th><th className="hide-mob">Telefon</th><th></th></tr></thead>
+        <tbody>{filtered.map((c,i)=>{
+          const custBal=entityBal(c.id,"customer");
+          const supBal=entityBal(c.id,"supplier");
+          const net=custBal-supBal;
+          const col=CRANE_COLORS[i%CRANE_COLORS.length];
+          return(<tr key={c.id} style={{cursor:"pointer"}} onClick={()=>setDetail(c.id)}>
+            <td>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:32,height:32,borderRadius:8,background:col+"18",color:col,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0}}>{initials(c.title)}</div>
+                <div><div style={{fontWeight:600,fontSize:13}}>{c.title}</div>{c.code&&<div style={{fontSize:11,color:"var(--t3)",marginTop:1}}>{c.code}</div>}</div>
+              </div>
+            </td>
+            <td className="hide-mob"><div style={{display:"flex",gap:4}}>
+              {c.is_customer&&<span className="chip" style={{background:"var(--accent-bg)",color:"var(--accent)",fontSize:10.5}}>Müşteri</span>}
+              {c.is_supplier&&<span className="chip" style={{background:"var(--purple-bg)",color:"var(--purple)",fontSize:10.5}}>Tedarikçi</span>}
+            </div></td>
+            <td>{net===0?<span className="bal-pill" style={{background:"var(--green-bg)",color:"var(--green)"}}>Sıfır</span>
+              :<span className="bal-pill" style={{background:net>0?"var(--amber-bg)":"var(--red-bg)",color:net>0?"var(--amber)":"var(--red)"}}>
+                {net>0?`${mask(fmtP(net))} alacak`:`${mask(fmtP(Math.abs(net)))} borç`}
+              </span>}
+            </td>
+            <td className="hide-mob" style={{fontSize:12.5,color:"var(--t2)"}}>{c.phone||"—"}</td>
+            <td onClick={e=>e.stopPropagation()}><div style={{display:"flex",gap:4}}>
+              <button className="btn btn-ic" style={{fontSize:10}} onClick={()=>openEdit(c)}>✏</button>
+              <button className="btn btn-ic" style={{fontSize:10,color:"var(--red)"}} onClick={()=>del(c)}>✕</button>
+            </div></td>
+          </tr>);
+        })}</tbody>
+      </table></div>}
+      {showMod&&<div className="ov" onClick={e=>e.target===e.currentTarget&&setShowMod(false)}>
+        <div className="mbox" style={{maxWidth:480}}>
+          <div className="mhd"><div className="mtitle">{editId?"Firma Düzenle":"Yeni Firma"}</div><button className="btn btn-ic" onClick={()=>setShowMod(false)}>✕</button></div>
+          <div className="irow"><span className="lbl">Tam Ünvan *</span><input className="field" placeholder="Kardeşler Vinç Ltd. Şti." value={form.title} onChange={e=>setForm(f=>({...f,title:e.target.value}))}/></div>
+          <div className="g2" style={{marginBottom:12}}>
+            <div className="irow"><span className="lbl">Kısa Kod</span><input className="field" placeholder="KDŞ" value={form.code} onChange={e=>setForm(f=>({...f,code:e.target.value}))}/></div>
+            <div className="irow"><span className="lbl">Telefon</span><input className="field" placeholder="0532 000 0000" value={form.phone} onChange={e=>setForm(f=>({...f,phone:e.target.value}))}/></div>
+          </div>
+          <div className="g2" style={{marginBottom:12}}>
+            <div className="irow"><span className="lbl">VKN</span><input className="field mono" placeholder="10 haneli" value={form.tax_no} onChange={e=>setForm(f=>({...f,tax_no:e.target.value}))}/></div>
+            <div className="irow"><span className="lbl">Vergi Dairesi</span><input className="field" value={form.tax_office} onChange={e=>setForm(f=>({...f,tax_office:e.target.value}))}/></div>
+          </div>
+          <div className="irow" style={{marginBottom:16}}><span className="lbl">Yetkili Kişi</span><input className="field" placeholder="Ad Soyad" value={form.contact_person} onChange={e=>setForm(f=>({...f,contact_person:e.target.value}))}/></div>
+          <div style={{fontSize:11,fontWeight:700,color:"var(--t3)",letterSpacing:.5,textTransform:"uppercase",marginBottom:10}}>Firma Rolü</div>
+          <div className="g2" style={{marginBottom:18}}>
+            <label style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",borderRadius:9,border:`1.5px solid ${form.is_customer?"var(--accent)":"var(--border)"}`,background:form.is_customer?"var(--accent-bg)":"var(--bg)",cursor:"pointer"}}>
+              <input type="checkbox" checked={form.is_customer} onChange={e=>setForm(f=>({...f,is_customer:e.target.checked}))} style={{accentColor:"var(--accent)"}}/>
+              <span style={{fontSize:13,fontWeight:600,color:form.is_customer?"var(--accent)":"var(--t2)"}}>Müşteri</span>
+            </label>
+            <label style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",borderRadius:9,border:`1.5px solid ${form.is_supplier?"var(--purple)":"var(--border)"}`,background:form.is_supplier?"var(--purple-bg)":"var(--bg)",cursor:"pointer"}}>
+              <input type="checkbox" checked={form.is_supplier} onChange={e=>setForm(f=>({...f,is_supplier:e.target.checked}))} style={{accentColor:"var(--purple)"}}/>
+              <span style={{fontSize:13,fontWeight:600,color:form.is_supplier?"var(--purple)":"var(--t2)"}}>Tedarikçi</span>
+            </label>
+          </div>
+          <button className="btn btn-primary btn-full" onClick={save}>{editId?"Güncelle":"Kaydet"}</button>
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+/* FİLO */
+function CranesPage({cranes,cid,showT,setCranes,navTo}){
+  const[showMod,setShowMod]=useState(false);
+  const[editId,setEditId]=useState(null);
+  const[form,setForm]=useState({code:"",tonnage:"",plate:"",operator:""});
+  const openAdd=()=>{setEditId(null);setForm({code:"",tonnage:"",plate:"",operator:""});setShowMod(true);};
+  const save=async()=>{
+    if(!form.code.trim()){showT("⚠ Araç kodu zorunlu");return}
+    const row={id:editId||nid(),...form};
+    await dbUps("cranes",[row],cid);
+    if(editId)setCranes(prev=>prev.map(c=>c.id===editId?{...c,...row}:c));
+    else setCranes(prev=>[row,...prev]);
+    setShowMod(false);showT("✓ Kaydedildi");
+  };
+  const del=async cr=>{
+    if(!window.confirm(`${cr.code} silinsin mi?`))return;
+    await dbDel("cranes",cr.id);setCranes(prev=>prev.filter(x=>x.id!==cr.id));showT("🗑 Silindi");
+  };
+  return(
+    <div className="page">
+      <div className="sec-hd">
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:16,fontWeight:800}}>Filo Yönetimi</div>
+        <button className="btn btn-primary" onClick={openAdd}>+ Araç Ekle</button>
+      </div>
+      {cranes.length===0?<div className="card"><div className="empty">
+        <div className="em-ic">🚛</div>
+        <div className="em-title">Henüz araç eklenmemiş</div>
+        <div className="em-sub">Filo takibi için araçlarınızı ekleyin. İş kayıtlarında araç kodu olarak seçebileceksiniz.</div>
+        <button className="btn btn-primary" style={{marginTop:14}} onClick={openAdd}>+ İlk Aracı Ekle</button>
+      </div></div>
+      :<div className="tbl-wrap"><table>
+        <thead><tr><th>Kod</th><th>Tonaj</th><th className="hide-mob">Plaka</th><th className="hide-mob">Operatör</th><th></th></tr></thead>
+        <tbody>{cranes.map((cr,i)=>(
+          <tr key={cr.id}>
+            <td><div style={{display:"flex",alignItems:"center",gap:9}}><div style={{width:30,height:30,borderRadius:7,background:CRANE_COLORS[i%CRANE_COLORS.length]+"18",color:CRANE_COLORS[i%CRANE_COLORS.length],display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,flexShrink:0}}>🏗</div><span style={{fontWeight:700,fontSize:13}}>{cr.code}</span></div></td>
+            <td style={{fontSize:12.5}}>{cr.tonnage?cr.tonnage+" t":"—"}</td>
+            <td className="hide-mob" style={{fontSize:12.5,fontFamily:"monospace"}}>{cr.plate||"—"}</td>
+            <td className="hide-mob" style={{fontSize:12.5}}>{cr.operator||"—"}</td>
+            <td><div style={{display:"flex",gap:4}}>
+              <button className="btn btn-ic" style={{fontSize:10}} onClick={()=>{setEditId(cr.id);setForm({code:cr.code,tonnage:cr.tonnage||"",plate:cr.plate||"",operator:cr.operator||""});setShowMod(true);}}>✏</button>
+              <button className="btn btn-ic" style={{fontSize:10,color:"var(--red)"}} onClick={()=>del(cr)}>✕</button>
+            </div></td>
+          </tr>
+        ))}</tbody>
+      </table></div>}
+      {showMod&&<div className="ov" onClick={e=>e.target===e.currentTarget&&setShowMod(false)}>
+        <div className="mbox" style={{maxWidth:400}}>
+          <div className="mhd"><div className="mtitle">{editId?"Araç Düzenle":"Yeni Araç"}</div><button className="btn btn-ic" onClick={()=>setShowMod(false)}>✕</button></div>
+          <div className="g2" style={{marginBottom:12}}>
+            <div className="irow"><span className="lbl">Araç Kodu *</span><input className="field" placeholder="VNT-01" value={form.code} onChange={e=>setForm(f=>({...f,code:e.target.value}))}/></div>
+            <div className="irow"><span className="lbl">Tonaj</span><input className="field" placeholder="50" value={form.tonnage} onChange={e=>setForm(f=>({...f,tonnage:e.target.value}))}/></div>
+          </div>
+          <div className="g2" style={{marginBottom:14}}>
+            <div className="irow"><span className="lbl">Plaka</span><input className="field mono" placeholder="34 ABC 123" value={form.plate} onChange={e=>setForm(f=>({...f,plate:e.target.value}))}/></div>
+            <div className="irow"><span className="lbl">Operatör</span><input className="field" placeholder="Mehmet Usta" value={form.operator} onChange={e=>setForm(f=>({...f,operator:e.target.value}))}/></div>
+          </div>
+          <button className="btn btn-primary btn-full" onClick={save}>{editId?"Güncelle":"Kaydet"}</button>
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+/* KASA */
+function CashPage({accounts,cashTxs,cid,mask,fmtP,showT,setAccounts,setCashTxs,navTo}){
+  const[showAcctMod,setShowAcctMod]=useState(false);
+  const[showTxMod,setShowTxMod]=useState(false);
+  const[selAcct,setSelAcct]=useState(null);
+  const[acctForm,setAcctForm]=useState({name:"",type:"bank",iban:""});
+  const[txForm,setTxForm]=useState({date:today(),type:"in",amount:"",description:"",account_id:""});
+  const acctBal=ac=>cashTxs.filter(t=>t.account_id===ac.id).reduce((s,t)=>t.type==="in"?s+t.amount:s-t.amount,0);
+  const totalBal=accounts.reduce((s,a)=>s+acctBal(a),0);
+  const saveAcct=async()=>{
+    if(!acctForm.name.trim()){showT("⚠ Hesap adı zorunlu");return}
+    const row={id:nid(),...acctForm};
+    await dbUps("accounts",[row],cid);
+    setAccounts(prev=>[row,...prev]);setShowAcctMod(false);showT("✓ Hesap eklendi");
+  };
+  const saveTx=async()=>{
+    if(!txForm.account_id||!txForm.amount){showT("⚠ Hesap ve tutar zorunlu");return}
+    const row={id:nid(),date:txForm.date,account_id:txForm.account_id,type:txForm.type,amount:Number(txForm.amount),description:txForm.description};
+    await dbUps("cash_txs",[row],cid);setCashTxs(prev=>[row,...prev]);setShowTxMod(false);showT("✓ İşlem kaydedildi");
+  };
+  const selAcctTxs=selAcct?cashTxs.filter(t=>t.account_id===selAcct.id):[];
+  return(
+    <div className="page">
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,flexWrap:"wrap",gap:8}}>
+        <div><div style={{fontFamily:"'Syne',sans-serif",fontSize:16,fontWeight:800}}>Kasa & Banka</div><div style={{fontSize:12,color:"var(--t3)",marginTop:2}}>Toplam: <b style={{color:"var(--t1)"}}>{mask(fmtP(totalBal))}</b></div></div>
+        <div style={{display:"flex",gap:9}}>
+          {accounts.length>0&&<button className="btn btn-sec" onClick={()=>{setTxForm({date:today(),type:"in",amount:"",description:"",account_id:accounts[0]?.id||""});setShowTxMod(true);}}>+ Hareket</button>}
+          <button className="btn btn-primary" onClick={()=>{setAcctForm({name:"",type:"bank",iban:""});setShowAcctMod(true);}}>+ Hesap</button>
+        </div>
+      </div>
+      {accounts.length===0?<div className="card"><div className="empty">
+        <div className="em-ic">🏦</div>
+        <div className="em-title">Henüz hesap eklenmemiş</div>
+        <div className="em-sub">Banka hesabı veya nakit kasa ekleyerek para akışınızı takip edin.</div>
+        <button className="btn btn-primary" style={{marginTop:14}} onClick={()=>{setAcctForm({name:"",type:"bank",iban:""});setShowAcctMod(true);}}>+ İlk Hesabı Ekle</button>
+      </div></div>:<>
+        <div className="g4" style={{marginBottom:20}}>
+          {accounts.map(a=>{const bal=acctBal(a);return(<div key={a.id} className="stat-card" style={{cursor:"pointer"}} onClick={()=>setSelAcct(selAcct?.id===a.id?null:a)}>
+            <div className="sc-lbl">{a.type==="bank"?"🏦":a.type==="cash"?"💵":"💳"} {a.name}</div>
+            <div className="sc-val" style={{color:bal>=0?"var(--green)":"var(--red)"}}>{mask(fmtP(bal))}</div>
+          </div>);})}
+        </div>
+        {selAcct&&<div className="card" style={{marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+            <div style={{fontWeight:700,fontSize:14}}>{selAcct.name}</div>
+            <button className="btn btn-ic" onClick={()=>setSelAcct(null)}>✕</button>
+          </div>
+          {selAcctTxs.length===0?<div style={{textAlign:"center",padding:"20px 0",color:"var(--t3)",fontSize:13}}>Henüz hareket yok</div>
+          :<div className="tbl-wrap"><table>
+            <thead><tr><th>Tarih</th><th>Açıklama</th><th>Tür</th><th>Tutar</th></tr></thead>
+            <tbody>{selAcctTxs.map(t=>(
+              <tr key={t.id}>
+                <td style={{color:"var(--t3)",fontSize:12}}>{fmtDate(t.date)}</td>
+                <td style={{fontSize:12.5}}>{t.description||"—"}</td>
+                <td><span className="chip" style={{background:t.type==="in"?"var(--green-bg)":"var(--red-bg)",color:t.type==="in"?"var(--green)":"var(--red)"}}>{t.type==="in"?"▲ Giriş":"▼ Çıkış"}</span></td>
+                <td><span className="mono" style={{fontWeight:600,color:t.type==="in"?"var(--green)":"var(--red)"}}>{mask(fmtP(t.amount))}</span></td>
+              </tr>
+            ))}</tbody>
+          </table></div>}
+        </div>}
+      </>}
+      {showAcctMod&&<div className="ov" onClick={e=>e.target===e.currentTarget&&setShowAcctMod(false)}>
+        <div className="mbox" style={{maxWidth:380}}>
+          <div className="mhd"><div className="mtitle">Yeni Hesap</div><button className="btn btn-ic" onClick={()=>setShowAcctMod(false)}>✕</button></div>
+          <div className="irow"><span className="lbl">Hesap Adı</span><input className="field" placeholder="Ziraat Bankası" value={acctForm.name} onChange={e=>setAcctForm(f=>({...f,name:e.target.value}))}/></div>
+          <div className="irow"><span className="lbl">Tür</span><select className="field" value={acctForm.type} onChange={e=>setAcctForm(f=>({...f,type:e.target.value}))}>
+            <option value="bank">Banka (TL)</option>
+            <option value="cash">Nakit Kasa</option>
+            <option value="pos">POS / Kredi Kartı</option>
+            <option value="fx">Döviz</option>
+          </select></div>
+          <div className="irow" style={{marginBottom:16}}><span className="lbl">IBAN</span><input className="field mono" placeholder="TR00 0000..." value={acctForm.iban} onChange={e=>setAcctForm(f=>({...f,iban:e.target.value}))}/></div>
+          <button className="btn btn-primary btn-full" onClick={saveAcct}>Kaydet</button>
+        </div>
+      </div>}
+      {showTxMod&&<div className="ov" onClick={e=>e.target===e.currentTarget&&setShowTxMod(false)}>
+        <div className="mbox" style={{maxWidth:420}}>
+          <div className="mhd"><div className="mtitle">Yeni Hareket</div><button className="btn btn-ic" onClick={()=>setShowTxMod(false)}>✕</button></div>
+          <div className="g2" style={{marginBottom:12}}>
+            <div className="irow"><span className="lbl">Tarih</span><input type="date" className="field" value={txForm.date} onChange={e=>setTxForm(f=>({...f,date:e.target.value}))}/></div>
+            <div className="irow"><span className="lbl">Tür</span><select className="field" value={txForm.type} onChange={e=>setTxForm(f=>({...f,type:e.target.value}))}>
+              <option value="in">▲ Giriş</option><option value="out">▼ Çıkış</option>
+            </select></div>
+          </div>
+          <div className="irow"><span className="lbl">Hesap</span><select className="field" value={txForm.account_id} onChange={e=>setTxForm(f=>({...f,account_id:e.target.value}))}>
+            {accounts.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}
+          </select></div>
+          <div className="g2" style={{marginBottom:14}}>
+            <div className="irow"><span className="lbl">Tutar (₺)</span><input className="field mono" placeholder="0.00" value={txForm.amount} onChange={e=>setTxForm(f=>({...f,amount:e.target.value}))}/></div>
+            <div className="irow"><span className="lbl">Açıklama</span><input className="field" placeholder="Tahsilat" value={txForm.description} onChange={e=>setTxForm(f=>({...f,description:e.target.value}))}/></div>
+          </div>
+          <button className="btn btn-primary btn-full" onClick={saveTx}>Kaydet</button>
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+/* RAPORLAMA */
+function ReportPage({jobs,contacts,cranes,mask,fmtP}){
+  const totalRev=jobs.reduce((a,j)=>a+(j.price||0),0);
+  const totalCost=jobs.reduce((a,j)=>a+(j.supplier_price||0),0);
+  const totalProfit=totalRev-totalCost;
+  const byContact=contacts.map(c=>{const cJobs=jobs.filter(j=>j.contact_id===c.id);return{...c,count:cJobs.length,rev:cJobs.reduce((a,j)=>a+(j.price||0),0)};}).filter(c=>c.count>0).sort((a,b)=>b.rev-a.rev);
+  const byCrane=cranes.map(cr=>{const crJobs=jobs.filter(j=>j.crane_code===cr.code);return{...cr,count:crJobs.length,rev:crJobs.reduce((a,j)=>a+(j.price||0),0)};}).filter(c=>c.count>0).sort((a,b)=>b.rev-a.rev);
+  return(
+    <div className="page">
+      <div className="g4" style={{marginBottom:20}}>
+        <div className="stat-card accent"><div className="sc-lbl">Toplam Ciro</div><div className="sc-val">{mask(fmtP(totalRev))}</div></div>
+        <div className="stat-card"><div className="sc-lbl">Toplam Maliyet</div><div className="sc-val">{mask(fmtP(totalCost))}</div></div>
+        <div className="stat-card"><div className="sc-lbl">Net Kâr</div><div className="sc-val" style={{color:"var(--green)"}}>{mask(fmtP(totalProfit))}</div></div>
+        <div className="stat-card"><div className="sc-lbl">İş Sayısı</div><div className="sc-val">{jobs.length}</div></div>
+      </div>
+      {jobs.length===0?<div className="card"><div className="empty"><div className="em-ic">📊</div><div className="em-title">Henüz raporlanacak veri yok</div><div className="em-sub">İş kayıtları oluştukça burada analizler görünecek.</div></div></div>
+      :<div className="g2">
+        <div>
+          <div className="sec-title" style={{marginBottom:12}}>Müşteri Bazlı Ciro</div>
+          {byContact.length===0?<div className="card"><div className="empty" style={{padding:20}}><div className="em-sub">Veri yok</div></div></div>
+          :<div className="card" style={{padding:0,overflow:"hidden"}}>{byContact.slice(0,8).map((c,i)=>(
+            <div key={c.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 16px",borderBottom:i<byContact.length-1?"1px solid var(--border)":"none"}}>
+              <div style={{fontWeight:600,fontSize:13}}>{c.title}</div>
+              <div><span className="mono" style={{fontWeight:700,color:"var(--green)",fontSize:13}}>{mask(fmtP(c.rev))}</span><span style={{fontSize:11,color:"var(--t3)",marginLeft:6}}>{c.count} iş</span></div>
+            </div>
+          ))}</div>}
+        </div>
+        <div>
+          <div className="sec-title" style={{marginBottom:12}}>Araç Bazlı Ciro</div>
+          {byCrane.length===0?<div className="card"><div className="empty" style={{padding:20}}><div className="em-sub">Veri yok</div></div></div>
+          :<div className="card" style={{padding:16}}>{byCrane.map((cr,i)=>{
+            const maxRev=byCrane[0]?.rev||1;
+            return(<div key={cr.id} style={{marginBottom:i<byCrane.length-1?12:0}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                <span style={{fontSize:12.5,fontWeight:600,color:"var(--t2)"}}>{cr.code}</span>
+                <span className="mono" style={{fontSize:12,fontWeight:700,color:CRANE_COLORS[i%CRANE_COLORS.length]}}>{mask(fmtP(cr.rev))}</span>
+              </div>
+              <div style={{height:5,background:"var(--border)",borderRadius:4,overflow:"hidden"}}>
+                <div style={{width:`${(cr.rev/maxRev)*100}%`,height:"100%",background:CRANE_COLORS[i%CRANE_COLORS.length],borderRadius:4,transition:"width .8s"}}/>
+              </div>
+            </div>);
+          })}</div>}
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   PERSONEL YÖNETİMİ
+════════════════════════════════════════ */
+function StaffPage({cid,myProfile,showT}){
+  const[list,setList]=useState([]);
+  const[loading,setLoading]=useState(true);
+  const[showAdd,setShowAdd]=useState(false);
+  const[aEmail,setAEmail]=useState("");
+  const[aPass,setAPass]=useState("");
+  const[aName,setAName]=useState("");
+  const[aPerms,setAPerms]=useState({...DEFAULT_PERMS});
+  const[editItem,setEditItem]=useState(null);
+  const[editPerms,setEditPerms]=useState({});
+  const[editName,setEditName]=useState("");
+  const[saving,setSaving]=useState(false);
+
+  const load=useCallback(async()=>{
+    if(!sb||!cid){setLoading(false);return;}
+    const{data,error}=await sb.from("profiles").select("id,display_name,role,permissions,created_at").eq("company_id",cid).neq("role","admin");
+    if(error)console.error("[staff load]",error.message);
+    setList(data||[]);setLoading(false);
+  },[cid]);
+
+  useEffect(()=>{load();},[load]);
+
+  const addStaff=async()=>{
+    if(!aEmail.trim()||aPass.length<6){showT("⚠ E-posta ve en az 6 karakter şifre zorunlu");return}
+    setSaving(true);
+    const{data,error}=await sb.auth.signUp({
+      email:aEmail.trim(),password:aPass,
+      options:{emailRedirectTo:window.location.origin,data:{company_name:myProfile?.company_name||""}}
+    });
+    if(error){showT("⚠ "+trErr(error.message));setSaving(false);return}
+    const uid=data?.user?.id;
+    if(uid){
+      await upsProfile({id:uid,display_name:aName||aEmail.split("@")[0],role:"personel",permissions:aPerms,company_id:cid,company_name:myProfile?.company_name||""});
+    }
+    setSaving(false);showT("✓ Personel eklendi");
+    setShowAdd(false);setAEmail("");setAPass("");setAName("");setAPerms({...DEFAULT_PERMS});
+    load();
+  };
+
+  const saveEdit=async()=>{
+    if(!editItem)return;setSaving(true);
+    await sb.from("profiles").update({display_name:editName,permissions:editPerms}).eq("id",editItem.id);
+    setSaving(false);showT("✓ Güncellendi");
+    setList(prev=>prev.map(s=>s.id===editItem.id?{...s,display_name:editName,permissions:editPerms}:s));
+    setEditItem(null);
+  };
+
+  const remove=async(s)=>{
+    if(!window.confirm(`${s.display_name||"Bu personel"} şirketten çıkarılsın mı?`))return;
+    await sb.from("profiles").update({company_id:null,permissions:{}}).eq("id",s.id);
+    setList(prev=>prev.filter(x=>x.id!==s.id));showT("✓ Kaldırıldı");
+  };
+
+  const PermGrid=({val,toggle})=>(
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:8}}>
+      {PERMS.map(p=>{
+        const on=!!val[p.k];
+        return(
+          <div key={p.k} className={"perm-check"+(on?" on":"")} onClick={()=>toggle(p.k)}>
+            <div className="perm-box">{on&&<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,3" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}</div>
+            <div>
+              <div style={{fontSize:13,fontWeight:600,color:on?"var(--accent)":"var(--t1)"}}>{p.ic} {p.l}</div>
+              <div style={{fontSize:11,color:"var(--t3)",marginTop:2,lineHeight:1.4}}>{p.desc}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  return(
+    <div className="page">
+      <div className="sec-hd">
+        <div>
+          <div style={{fontFamily:"'Syne',sans-serif",fontSize:16,fontWeight:800}}>Personel Yönetimi</div>
+          <div style={{fontSize:12,color:"var(--t3)",marginTop:2}}>Çalışanlarınızı ekleyin ve modül erişimlerini belirleyin</div>
+        </div>
+        <button className="btn btn-primary" onClick={()=>setShowAdd(v=>!v)}>{showAdd?"✕ İptal":"+ Personel Ekle"}</button>
+      </div>
+
+      {showAdd&&(
+        <div className="card" style={{marginBottom:18,borderTop:"3px solid var(--accent)"}}>
+          <div style={{fontWeight:700,fontSize:14,marginBottom:14}}>Yeni Personel</div>
+          <div style={{background:"var(--amber-bg)",border:"1px solid var(--amber-lt)",borderRadius:9,padding:"9px 13px",fontSize:12,color:"#92400E",marginBottom:14,lineHeight:1.6}}>
+            ℹ Personel bu e-posta ve şifreyle sisteme giriş yapabilecek. Sadece işaretli modülleri görecek.
+          </div>
+          <div className="g2" style={{marginBottom:12}}>
+            <div className="irow"><span className="lbl">E-posta *</span><input className="field" type="email" placeholder="personel@firma.com" value={aEmail} onChange={e=>setAEmail(e.target.value)}/></div>
+            <div className="irow"><span className="lbl">Şifre (min 6)</span><input className="field" type="text" placeholder="Geçici şifre" value={aPass} onChange={e=>setAPass(e.target.value)}/></div>
+          </div>
+          <div className="irow" style={{marginBottom:16}}><span className="lbl">Ad Soyad</span><input className="field" placeholder="Ahmet Yılmaz" value={aName} onChange={e=>setAName(e.target.value)}/></div>
+          <div style={{fontSize:11,fontWeight:700,color:"var(--t3)",letterSpacing:.5,textTransform:"uppercase",marginBottom:10}}>Modül Erişim Yetkileri</div>
+          <div style={{marginBottom:16}}><PermGrid val={aPerms} toggle={k=>setAPerms(p=>({...p,[k]:!p[k]}))}/></div>
+          <div style={{display:"flex",gap:9}}>
+            <button className="btn btn-sec" onClick={()=>setShowAdd(false)}>İptal</button>
+            <button className="btn btn-primary" onClick={addStaff} disabled={saving}>{saving?"Ekleniyor…":"✓ Personel Ekle"}</button>
+          </div>
+        </div>
+      )}
+
+      {loading?<div className="card"><div className="empty"><div style={{animation:"pulse 1.5s infinite",color:"var(--t3)"}}>⏳ Yükleniyor…</div></div></div>
+      :list.length===0?<div className="card"><div className="empty">
+        <div className="em-ic">👥</div>
+        <div className="em-title">Henüz personel eklenmemiş</div>
+        <div className="em-sub">Çalışanlarınıza sisteme erişim vermek için "+ Personel Ekle" butonunu kullanın.</div>
+        <button className="btn btn-primary" style={{marginTop:14}} onClick={()=>setShowAdd(true)}>+ İlk Personeli Ekle</button>
+      </div></div>
+      :<div className="tbl-wrap"><table>
+        <thead><tr><th>Personel</th><th>Yetkiler</th><th className="hide-mob">Tarih</th><th></th></tr></thead>
+        <tbody>{list.map(s=>{
+          const granted=PERMS.filter(p=>(s.permissions||{})[p.k]);
+          return(<tr key={s.id}>
+            <td>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:32,height:32,borderRadius:8,background:"var(--accent-bg)",color:"var(--accent)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0}}>{initials(s.display_name||"?")}</div>
+                <div style={{fontWeight:600,fontSize:13}}>{s.display_name||"İsimsiz"}</div>
+              </div>
+            </td>
+            <td>
+              {granted.length===0?<span style={{fontSize:11.5,color:"var(--t3)"}}>Yetki yok</span>
+              :<div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+                {granted.map(p=><span key={p.k} className="chip" style={{background:"var(--green-bg)",color:"var(--green)",fontSize:10.5}}>{p.ic} {p.l}</span>)}
+              </div>}
+            </td>
+            <td className="hide-mob" style={{fontSize:11.5,color:"var(--t3)"}}>{s.created_at?fmtDate(s.created_at.slice(0,10)):"—"}</td>
+            <td>
+              <div style={{display:"flex",gap:4,justifyContent:"flex-end"}}>
+                <button className="btn btn-sec btn-xs" onClick={()=>{setEditItem(s);setEditPerms({...DEFAULT_PERMS,...(s.permissions||{})});setEditName(s.display_name||"");}}>✏</button>
+                <button className="btn btn-ic" style={{color:"var(--red)"}} onClick={()=>remove(s)}>✕</button>
+              </div>
+            </td>
+          </tr>);
+        })}</tbody>
+      </table></div>}
+
+      {editItem&&(
+        <div className="ov" onClick={e=>e.target===e.currentTarget&&setEditItem(null)}>
+          <div className="mbox" style={{maxWidth:540}}>
+            <div className="mhd">
+              <div><div className="mtitle">Yetki Düzenle</div><div style={{fontSize:12,color:"var(--t3)",marginTop:2}}>{editItem.display_name}</div></div>
+              <button className="btn btn-ic" onClick={()=>setEditItem(null)}>✕</button>
+            </div>
+            <div className="irow" style={{marginBottom:14}}><span className="lbl">Ad Soyad</span><input className="field" value={editName} onChange={e=>setEditName(e.target.value)}/></div>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--t3)",letterSpacing:.5,textTransform:"uppercase",marginBottom:10}}>Modül Yetkileri</div>
+            <div style={{marginBottom:18}}><PermGrid val={editPerms} toggle={k=>setEditPerms(p=>({...p,[k]:!p[k]}))}/></div>
+            <div style={{display:"flex",gap:9}}>
+              <button className="btn btn-sec" style={{flex:1}} onClick={()=>setEditItem(null)}>İptal</button>
+              <button className="btn btn-primary" style={{flex:2,justifyContent:"center"}} onClick={saveEdit} disabled={saving}>{saving?"Kaydediliyor…":"✓ Kaydet"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   KULLANICI YÖNETİMİ (sadece admin)
+════════════════════════════════════════ */
+function UsersPage({cid,myProfile,showT}){
+  const[users,setUsers]=useState([]);
+  const[loading,setLoading]=useState(true);
+  const[editItem,setEditItem]=useState(null);
+  const[editRole,setEditRole]=useState("personel");
+  const[editPerms,setEditPerms]=useState({});
+  const[editName,setEditName]=useState("");
+  const[saving,setSaving]=useState(false);
+
+  useEffect(()=>{
+    if(!sb||!cid)return;
+    sb.from("profiles").select("id,display_name,role,permissions,created_at").eq("company_id",cid)
+      .then(({data})=>{setUsers(data||[]);setLoading(false);});
+  },[cid]);
+
+  const save=async()=>{
+    if(!editItem)return;setSaving(true);
+    const perms=editRole==="admin"?ADMIN_PERMS:editPerms;
+    await sb.from("profiles").update({display_name:editName,role:editRole,permissions:perms}).eq("id",editItem.id);
+    setSaving(false);showT("✓ Güncellendi");
+    setUsers(prev=>prev.map(u=>u.id===editItem.id?{...u,display_name:editName,role:editRole,permissions:perms}:u));
+    setEditItem(null);
+  };
+
+  return(
+    <div className="page">
+      <div className="sec-hd" style={{marginBottom:18}}>
+        <div><div style={{fontFamily:"'Syne',sans-serif",fontSize:16,fontWeight:800}}>Kullanıcı Yönetimi</div><div style={{fontSize:12,color:"var(--t3)",marginTop:2}}>Tüm hesaplar ve roller</div></div>
+      </div>
+      {loading?<div className="card"><div className="empty"><div style={{color:"var(--t3)"}}>⏳</div></div></div>
+      :<div className="tbl-wrap"><table>
+        <thead><tr><th>Kullanıcı</th><th>Rol</th><th className="hide-mob">Yetkiler</th><th></th></tr></thead>
+        <tbody>{users.map(u=>{
+          const isMe=u.id===myProfile?.id;
+          return(<tr key={u.id}>
+            <td>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:32,height:32,borderRadius:8,background:"var(--accent-bg)",color:"var(--accent)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,flexShrink:0}}>{initials(u.display_name||"?")}</div>
+                <div>
+                  <div style={{fontWeight:600,fontSize:13}}>{u.display_name||"—"} {isMe&&<span style={{fontSize:10,color:"var(--accent)",fontWeight:700}}>(Siz)</span>}</div>
+                </div>
+              </div>
+            </td>
+            <td><span className="chip" style={{background:u.role==="admin"?"var(--accent-bg)":"var(--bg)",color:u.role==="admin"?"var(--accent)":"var(--t2)",border:"1px solid var(--border)"}}>{u.role==="admin"?"👑 Admin":"👤 Personel"}</span></td>
+            <td className="hide-mob" style={{fontSize:11.5,color:"var(--t3)"}}>{u.role==="admin"?"Tüm yetkiler":PERMS.filter(p=>(u.permissions||{})[p.k]).map(p=>p.l).join(", ")||"Yetki yok"}</td>
+            <td>{!isMe&&<button className="btn btn-sec btn-xs" onClick={()=>{setEditItem(u);setEditRole(u.role||"personel");setEditPerms({...DEFAULT_PERMS,...(u.permissions||{})});setEditName(u.display_name||"");}}>✏</button>}</td>
+          </tr>);
+        })}</tbody>
+      </table></div>}
+      {editItem&&(
+        <div className="ov" onClick={e=>e.target===e.currentTarget&&setEditItem(null)}>
+          <div className="mbox" style={{maxWidth:480}}>
+            <div className="mhd"><div><div className="mtitle">Kullanıcı Düzenle</div></div><button className="btn btn-ic" onClick={()=>setEditItem(null)}>✕</button></div>
+            <div className="irow" style={{marginBottom:14}}><span className="lbl">Ad</span><input className="field" value={editName} onChange={e=>setEditName(e.target.value)}/></div>
+            <div className="irow" style={{marginBottom:16}}>
+              <span className="lbl">Rol</span>
+              <div className="g2">
+                {["personel","admin"].map(r=><button key={r} onClick={()=>setEditRole(r)} style={{padding:"9px",borderRadius:9,border:`1.5px solid ${editRole===r?"var(--accent)":"var(--border)"}`,background:editRole===r?"var(--accent-bg)":"var(--bg)",color:editRole===r?"var(--accent)":"var(--t2)",fontWeight:600,fontSize:12,cursor:"pointer"}}>
+                  {r==="admin"?"👑 Admin":"👤 Personel"}
+                </button>)}
+              </div>
+            </div>
+            {editRole!=="admin"&&<>
+              <div style={{fontSize:11,fontWeight:700,color:"var(--t3)",letterSpacing:.5,textTransform:"uppercase",marginBottom:10}}>Yetkiler</div>
+              <div style={{marginBottom:18}}>{PERMS.map(p=>{
+                const on=!!editPerms[p.k];
+                return(<div key={p.k} className={"perm-check"+(on?" on":"")} style={{marginBottom:8}} onClick={()=>setEditPerms(pp=>({...pp,[p.k]:!pp[p.k]}))}>
+                  <div className="perm-box">{on&&<svg width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,3" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}</div>
+                  <div style={{fontSize:13,fontWeight:600,color:on?"var(--accent)":"var(--t1)"}}>{p.ic} {p.l}</div>
+                </div>);
+              })}</div>
+            </>}
+            <div style={{display:"flex",gap:9}}>
+              <button className="btn btn-sec" style={{flex:1}} onClick={()=>setEditItem(null)}>İptal</button>
+              <button className="btn btn-primary" style={{flex:2,justifyContent:"center"}} onClick={save} disabled={saving}>{saving?"…":"✓ Kaydet"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   AUTOCOMPLETE
+════════════════════════════════════════ */
+function ContactAC({value,onChange,contacts,label="Firma"}){
+  const[q,setQ]=useState("");
+  const[open,setOpen]=useState(false);
+  const ref=useRef();
+  useEffect(()=>{
+    const h=e=>{if(ref.current&&!ref.current.contains(e.target))setOpen(false);};
+    document.addEventListener("mousedown",h);return()=>document.removeEventListener("mousedown",h);
+  },[]);
+  const sel=contacts.find(c=>c.id===value);
+  const filtered=q?contacts.filter(c=>c.title.toLowerCase().includes(q.toLowerCase())):contacts;
+  return(
+    <div className="ac-wrap" ref={ref}>
+      <div className="ac-row">
+        <input className="field ac-inp" placeholder={`${label} ara…`}
+          value={open?q:sel?.title||""}
+          onFocus={()=>{setOpen(true);setQ("");}}
+          onChange={e=>setQ(e.target.value)}/>
+        <button className="ac-add" onClick={()=>{onChange(null);setQ("");setOpen(false);}}>✕</button>
+      </div>
+      {open&&<div className="ac-drop">
+        {filtered.length===0&&<div className="ac-empty">Bulunamadı</div>}
+        {filtered.map(c=>(
+          <div key={c.id} className="ac-item" onClick={()=>{onChange(c.id);setOpen(false);}}>
+            <div className="ac-name">{c.title}</div>
+            {c.phone&&<div className="ac-sub">{c.phone}</div>}
+          </div>
+        ))}
+      </div>}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════
+   ANA UYGULAMA
+════════════════════════════════════════ */
+function App(){
+  /* ── VIEW STATE ── */
+  const[appView,setAppView]=useState("landing"); // landing|login|signup|app|loading
+
+  /* ── AUTH ── */
+  const[authUser,setAuthUser]=useState(null);
+  const[profile,setProfile]=useState(null);
+  const[authLoading,setAuthLoading]=useState(true);
+
+  /* ── APP STATE ── */
+  const[page,setPage]=useState("home");
+  const[mobOpen,setMobOpen]=useState(false);
+  const[toast,setToast]=useState("");
+  const[hideAmt,setHideAmt]=useState(false);
+  const[dbReady,setDbReady]=useState(false);
+  const[dbError,setDbError]=useState(false);
+
+  /* ── DATA ── */
+  const[contacts,setContacts]=useState([]);  // birleşik müşteri+tedarikçi
+  const[jobs,setJobs]=useState([]);
+  const[cranes,setCranes]=useState([]);
+  const[accounts,setAccounts]=useState([]);
+  const[cashTxs,setCashTxs]=useState([]);
+  const[ledger,setLedger]=useState([]);
+
+  const showT=useCallback((msg)=>{setToast(msg);setTimeout(()=>setToast(""),3200);},[]);
+
+  /* ── CID: firma bazlı company_id ── */
+  const cid=useMemo(()=>profile?.company_id||null,[profile]);
+
+  /* ── PERMS ── */
+  const isAdmin=useMemo(()=>(profile?.role||"").toLowerCase()==="admin",[profile]);
+  const hasPerm=useCallback((k)=>{
+    if(!profile)return false;
+    if(isAdmin)return true;
+    return !!(profile.permissions?.[k]);
+  },[profile,isAdmin]);
+  const canSee=useCallback((navKey)=>{
+    if(!profile)return false;
+    if(isAdmin)return true;
+    if(navKey==="home")return true;
+    const map={jobs:"operations",cash:"accounting",contacts:"contacts",cranes:"fleet",report:"reporting"};
+    const req=map[navKey];
+    if(!req)return false;
+    return hasPerm(req);
+  },[profile,isAdmin,hasPerm]);
+
+  /* ── LOAD PROFILE ── */
+  const loadProfile=useCallback(async(uid)=>{
+    try{
+      let p=await getProfile(uid);
+      if(!p){
+        console.warn("[VT] profil yok, oluşturuluyor uid:",uid);
+        await upsProfile({id:uid,display_name:"Kullanıcı",role:"personel",permissions:DEFAULT_PERMS});
+        p=await getProfile(uid);
+      }
+      if(p){
+        const role=(p.role||"personel").trim().toLowerCase();
+        setProfile({...p,role});
+      }
+    }catch(e){
+      console.error("[loadProfile]",e);
+      setProfile({id:uid,role:"personel",permissions:DEFAULT_PERMS,display_name:"?"});
+    }finally{
+      setAuthLoading(false);
+    }
+  },[]);
+
+  /* ── AUTH EFFECT ── */
+  useEffect(()=>{
+    if(!sb){setAuthLoading(false);return;}
+    sb.auth.getSession().then(({data:{session},error})=>{
+      if(error||!session?.user){setAuthLoading(false);return;}
+      setAuthUser(session.user);
+      loadProfile(session.user.id);
+      setAppView("app");
+    }).catch(()=>setAuthLoading(false));
+    const{data:{subscription}}=sb.auth.onAuthStateChange((ev,session)=>{
+      if(ev==="SIGNED_IN"&&session?.user){
+        setAuthUser(session.user);
+        loadProfile(session.user.id);
+        setAppView("app");
+      }else if(ev==="SIGNED_OUT"){
+        setAuthUser(null);setProfile(null);setAppView("landing");
+      }else if(ev==="TOKEN_REFRESHED"&&session?.user){
+        setAuthUser(session.user);loadProfile(session.user.id);
+      }
+    });
+    return()=>subscription.unsubscribe();
+  },[loadProfile]);
+
+  /* ── DATA LOAD ── */
+  useEffect(()=>{
+    if(!sb||!authUser||!cid)return;
+    console.log("[VT dataLoad] cid:",cid);
+    (async()=>{
+      try{
+        const[ct,jb,cr,ac,tx,ld]=await Promise.all([
+          dbSel("contacts",cid),dbSel("jobs",cid),dbSel("cranes",cid),
+          dbSel("accounts",cid),dbSel("cash_txs",cid),dbSel("ledger",cid)
+        ]);
+        if(ct===null){setDbError(true);showT("⚠ DB bağlantı hatası");return;}
+        setContacts(ct);setJobs(jb||[]);setCranes(cr||[]);
+        setAccounts(ac||[]);setCashTxs(tx||[]);setLedger(ld||[]);
+        setDbReady(true);
+        console.log("[VT] contacts:",ct.length,"jobs:",jb?.length||0);
+      }catch(e){console.error("[dataLoad]",e);setDbError(true);}
+    })();
+  },[authUser,cid]);
+
+  /* ── LOGOUT ── */
+  const doLogout=useCallback(async()=>{
+    try{if(sb)await sb.auth.signOut();}catch(_){}
+    ["vt360_sess","vt_profile"].forEach(k=>localStorage.removeItem(k));
+    setAuthUser(null);setProfile(null);setPage("home");setAppView("landing");
+    setContacts([]);setJobs([]);setCranes([]);setAccounts([]);setCashTxs([]);setLedger([]);
+    showT("✓ Güvenli çıkış yapıldı");
+  },[showT]);
+
+  /* ── HELPERS ── */
+  const mask=v=>hideAmt?"●●●":v;
+  const fmtP=v=>fmtPrice(v);
+
+  function entityBal(entityId,type){
+    return ledger.filter(l=>l.entity_id===entityId&&l.entity_type===type)
+      .reduce((a,l)=>l.type==="debt"?a+l.amount:a-l.amount,0);
+  }
+
+  const navTo=useCallback((p)=>{setPage(p);setMobOpen(false);},[]);
+
+  /* ── RENDER GUARDS ── */
+  if(authLoading){
+    return(
+      <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#060E1F"}}>
+        <div style={{textAlign:"center"}}>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:20}}><VtLogo size={42} textSize={17}/></div>
+          <div style={{width:28,height:28,border:"3px solid rgba(255,255,255,.08)",borderTopColor:"#3B82F6",borderRadius:"50%",animation:"spin360 .8s linear infinite",margin:"0 auto"}}/>
+          <style>{`@keyframes spin360{to{transform:rotate(360deg)}}`}</style>
+        </div>
+      </div>
+    );
+  }
+  if(appView==="landing")return <LandingPage onLogin={()=>setAppView("login")} onSignup={()=>setAppView("signup")}/>;
+  if(appView==="signup")return <SignupScreen onDone={u=>{setAuthUser(u);loadProfile(u.id);setAppView("app");}} onBack={()=>setAppView("landing")} onLogin={()=>setAppView("login")}/>;
+  if(appView==="login"||(!authUser&&sb))return(
+    <>
+      <LoginScreen onLogin={u=>{setAuthUser(u);loadProfile(u.id);setAppView("app");}} onBack={()=>setAppView("landing")} onSignup={()=>setAppView("signup")}/>
+      {toast&&<div className="toast" style={{background:"var(--red)",color:"#fff"}}>{toast}</div>}
+    </>
+  );
+
+  /* ── NAV TANIMLAMALARI ── */
+  const NAV=[
+    {k:"home",ic:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,l:"Ana Sayfa"},
+    {k:"jobs",ic:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,l:"Satışlar"},
+    {k:"cash",ic:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>,l:"Kasa"},
+    {k:"contacts",ic:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,l:"Cariler"},
+    {k:"cranes",ic:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>,l:"Filo"},
+    {k:"report",ic:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,l:"Raporlama"},
+  ].filter(n=>canSee(n.k));
+
+  const pageInfo={
+    home:{title:"Ana Sayfa",sub:"Genel bakış"},
+    jobs:{title:"Satışlar",sub:"İş kayıtları"},
+    cash:{title:"Kasa",sub:"Hesap hareketleri"},
+    contacts:{title:"Cariler",sub:"Müşteri ve tedarikçi bakiyeleri"},
+    cranes:{title:"Filo Yönetimi",sub:"Araç parkı"},
+    report:{title:"Raporlama",sub:"Analizler"},
+    staff:{title:"Personel",sub:"Çalışanlar ve yetkiler"},
+    users:{title:"Kullanıcılar",sub:"Hesap yönetimi"},
+  };
+  const pi=pageInfo[page]||pageInfo.home;
+
+  /* ── ANA RENDER ── */
+  return(
+    <div id="root">
+      <div className={"mob-ov"+(mobOpen?" open":"")} onClick={()=>setMobOpen(false)}/>
+
+      {/* SIDEBAR */}
+      <nav className={"sidebar"+(mobOpen?" open":"")}>
+        <div className="sb-logo" onClick={()=>navTo("home")}>
+          <VtLogo size={34} textSize={13}/>
+        </div>
+        <div className="sb-nav">
+          <div className="nav-grp">Modüller</div>
+          {NAV.map(n=>(
+            <button key={n.k} className={"nav-item"+(page===n.k?" active":"")} onClick={()=>navTo(n.k)}>
+              <span className="nav-ic">{n.ic}</span>{n.l}
+            </button>
+          ))}
+          {isAdmin&&<>
+            <div className="nav-grp" style={{marginTop:20}}>Yönetim</div>
+            <button className={"nav-item"+(page==="staff"?" active":"")} onClick={()=>navTo("staff")}>
+              <span className="nav-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>Personel
+            </button>
+            <button className={"nav-item"+(page==="users"?" active":"")} onClick={()=>navTo("users")}>
+              <span className="nav-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Kullanıcılar
+            </button>
+          </>}
+        </div>
+        <div className="sb-footer" style={{flexDirection:"column",gap:0,padding:"10px 14px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:authUser?10:0}}>
+            <div className="db-dot" style={{background:dbError?"#EF4444":dbReady?"#10B981":"#F59E0B"}}/>
+            <span style={{fontSize:11}}>{dbError?"Bağlantı hatası":dbReady?"Bulut aktif":"Bağlanıyor…"}</span>
+          </div>
+          {authUser&&<div style={{borderTop:"1px solid rgba(255,255,255,.07)",paddingTop:9}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+              <div style={{width:28,height:28,borderRadius:7,background:"rgba(59,130,246,.2)",color:"#93C5FD",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,flexShrink:0}}>
+                {initials(profile?.display_name||authUser.email||"?")}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:11.5,fontWeight:600,color:"rgba(255,255,255,.8)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{profile?.display_name||authUser.email}</div>
+                <div style={{fontSize:10,color:"rgba(255,255,255,.35)",marginTop:1}}>{isAdmin?"👑 Admin":"👤 Personel"}</div>
+              </div>
+            </div>
+            <button onClick={doLogout} style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"7px",borderRadius:8,background:"rgba(220,38,38,.1)",border:"1px solid rgba(220,38,38,.2)",color:"rgba(255,100,100,.8)",cursor:"pointer",fontSize:12,fontWeight:600}}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Çıkış Yap
+            </button>
+          </div>}
+        </div>
+      </nav>
+
+      {/* MAIN WRAP */}
+      <div className="main-wrap">
+        {/* TOPBAR */}
+        <div className="topbar">
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <button className="hamburger" onClick={()=>setMobOpen(o=>!o)}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div><div className="tb-title">{pi.title}</div><div className="tb-sub">{pi.sub}</div></div>
+          </div>
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button className="btn btn-sec btn-xs" onClick={()=>setHideAmt(h=>!h)}>{hideAmt?"👁 Göster":"🔒 Gizle"}</button>
+            {profile?.company_name&&<span style={{fontSize:11.5,color:"var(--t3)",display:"none"}}>{profile.company_name}</span>}
+          </div>
+        </div>
+
+        {/* ════ PAGES ════ */}
+
+        {/* ANA SAYFA */}
+        {page==="home"&&(()=>{
+          const totalRev=jobs.reduce((a,j)=>a+(j.price||0),0);
+          const totalCost=jobs.reduce((a,j)=>a+(j.supplier_price||0),0);
+          const totalBal=accounts.reduce((a,ac)=>{
+            const b=cashTxs.filter(t=>t.account_id===ac.id).reduce((s,t)=>t.type==="in"?s+t.amount:s-t.amount,0);
+            return a+b;
+          },0);
+          const recentJobs=jobs.slice(0,6);
+          return(
+            <div className="page">
+              {!dbReady&&!dbError&&<div style={{background:"var(--amber-bg)",border:"1px solid var(--amber-lt)",borderRadius:10,padding:"10px 14px",fontSize:12.5,color:"#92400E",marginBottom:16}}>⏳ Veriler yükleniyor…</div>}
+              {dbError&&<div style={{background:"var(--red-bg)",border:"1px solid #FCA5A5",borderRadius:10,padding:"10px 14px",fontSize:12.5,color:"var(--red)",marginBottom:16}}>⚠ Veritabanı bağlantı hatası. Sayfayı yenileyin.</div>}
+              <div className="g4" style={{marginBottom:20}}>
+                <div className="stat-card accent">
+                  <div className="sc-lbl">Toplam Ciro</div>
+                  <div className="sc-val">{mask(fmtP(totalRev))}</div>
+                  <div className="sc-sub">{jobs.length} iş kaydı</div>
+                </div>
+                <div className="stat-card">
+                  <div className="sc-lbl">Kasa Bakiyesi</div>
+                  <div className="sc-val">{mask(fmtP(totalBal))}</div>
+                  <div className="sc-sub">{accounts.length} hesap</div>
+                </div>
+                <div className="stat-card">
+                  <div className="sc-lbl">Aktif Araç</div>
+                  <div className="sc-val">{cranes.length}</div>
+                  <div className="sc-sub">Filo</div>
+                </div>
+                <div className="stat-card">
+                  <div className="sc-lbl">Firma/Cari</div>
+                  <div className="sc-val">{contacts.length}</div>
+                  <div className="sc-sub">Kayıtlı firma</div>
+                </div>
+              </div>
+              {jobs.length===0&&<div className="card">
+                <div className="empty">
+                  <div className="em-ic">👋</div>
+                  <div className="em-title" style={{fontSize:16}}>Hoş geldiniz, {profile?.display_name||""}!</div>
+                  <div className="em-sub" style={{maxWidth:380}}>Başlamak için sol menüden bir modül seçin. İlk adım olarak Filo'ya araçlarınızı, Cariler'e müşterilerinizi ekleyebilirsiniz.</div>
+                </div>
+              </div>}
+              {recentJobs.length>0&&<>
+                <div className="sec-hd"><div className="sec-title">Son İşler</div><button className="btn btn-sec btn-xs" onClick={()=>navTo("jobs")}>Tümü →</button></div>
+                <div className="tbl-wrap"><table>
+                  <thead><tr><th>Tarih</th><th>Müşteri</th><th>Araç</th><th>Tutar</th></tr></thead>
+                  <tbody>{recentJobs.map(j=>{
+                    const ct=contacts.find(c=>c.id===j.contact_id);
+                    const cr2=cranes.find(c=>c.code===j.crane_code);
+                    return(<tr key={j.id}>
+                      <td style={{color:"var(--t3)",fontSize:12}}>{fmtDate(j.date)}</td>
+                      <td style={{fontWeight:600}}>{ct?.title||"—"}</td>
+                      <td>{j.crane_code||"—"}</td>
+                      <td><span className="mono" style={{fontWeight:600,color:"var(--green)"}}>{mask(fmtP(j.price))}</span></td>
+                    </tr>);
+                  })}</tbody>
+                </table></div>
+              </>}
+            </div>
+          );
+        })()}
+
+        {page==="jobs"&&<JobsPage jobs={jobs} contacts={contacts} cranes={cranes} ledger={ledger} cid={cid} mask={mask} fmtP={fmtP} showT={showT} setJobs={setJobs} setLedger={setLedger} navTo={navTo}/>}
+
+        {page==="contacts"&&<ContactsPage contacts={contacts} jobs={jobs} ledger={ledger} cid={cid} mask={mask} fmtP={fmtP} showT={showT} setContacts={setContacts} setLedger={setLedger} navTo={navTo}/>}
+
+        {page==="cranes"&&<CranesPage cranes={cranes} cid={cid} showT={showT} setCranes={setCranes} navTo={navTo}/>}
+
+        {page==="cash"&&<CashPage accounts={accounts} cashTxs={cashTxs} cid={cid} mask={mask} fmtP={fmtP} showT={showT} setAccounts={setAccounts} setCashTxs={setCashTxs} navTo={navTo}/>}
+
+        {page==="report"&&<ReportPage jobs={jobs} contacts={contacts} cranes={cranes} mask={mask} fmtP={fmtP} navTo={navTo}/>}
+
+        {/* PERSONEL */}
+        {page==="staff"&&(
+          isAdmin?<StaffPage cid={cid} myProfile={profile} showT={showT}/>
+          :<div className="page"><div className="card"><div className="empty"><div className="em-ic">🔒</div><div className="em-title">Yetkisiz Erişim</div></div></div></div>
+        )}
+
+        {/* KULLANICI YÖNETİMİ */}
+        {page==="users"&&(
+          isAdmin?<UsersPage cid={cid} myProfile={profile} showT={showT}/>
+          :<div className="page"><div className="card"><div className="empty"><div className="em-ic">🔒</div><div className="em-title">Yetkisiz Erişim</div></div></div></div>
+        )}
+
+      </div>{/* /main-wrap */}
+
+      {toast&&<div className="toast" style={{background:toast.startsWith("⚠")?"var(--red)":toast.startsWith("🗑")?"var(--amber)":"var(--t1)",color:"#fff"}}>{toast}</div>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("app")).render(<App/>);
+</script>
+</body>
+</html>
